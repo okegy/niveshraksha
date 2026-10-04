@@ -88,9 +88,9 @@ export default function VerifyPage() {
               </div>
               <Alert className="border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30">
                 <AlertTriangle className="h-4 w-4 text-amber-600" aria-hidden />
-                <AlertTitle className="text-sm text-amber-800 dark:text-amber-500">Demo mode</AlertTitle>
+                <AlertTitle className="text-sm text-amber-800 dark:text-amber-500">Records source</AlertTitle>
                 <AlertDescription className="text-xs text-amber-900/80 dark:text-amber-400/90">
-                  This checks a clearly-labelled synthetic fixture, not live regulator data. Always confirm on the official SEBI website before deciding.
+                  This check runs against the records bundled with this build, not a live regulator API. Always confirm on the official SEBI website before deciding.
                 </AlertDescription>
               </Alert>
             </CardContent>

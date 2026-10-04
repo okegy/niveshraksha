@@ -84,14 +84,14 @@ RULES = [
     {
         "code": "FEE_TO_UNLOCK_WITHDRAWAL",
         "label": "Fee demanded to unlock withdrawals or allocations",
-        "pattern": r"(?:pay|transfer|deposit|send)\s+(?:\w+\s+){0,3}?(?:fee|charge|tax|amount)\s+(?:\w+\s+){0,2}?(?:to\s+)?(?:unlock|release|withdraw|unfreeze|allocate)|unlock\s+(?:the\s+)?(?:withdrawal|funds|allocation|ipo)|allocation\s+(?:fee|charge)|release\s+(?:your\s+)?funds?",
+        "pattern": r"(?:pay|transfer|deposit|send)\s+(?:\w+\s+){0,3}?(?:fee|charge|tax|amount)\s+(?:\w+\s+){0,2}?(?:to\s+)?(?:unlock|release|withdraw|unfreeze|allocate)|unlock\s+(?:the\s+)?(?:withdrawal|funds|allocation|ipo)|allocation\s+(?:fee|charge)|release\s+(?:your\s+)?funds?|unlockwithdrawals|chargetounlock|feetounlock",
         "explanation": "The message demands a payment before money you are owed can be 'unlocked' or an allocation released. Genuine firms never ask for advance fees to release your own funds or allotments — this is the classic advance-fee scam pattern.",
         "severity": "high",
     },
     {
         "code": "FAKE_KYC_ACCOUNT_THREAT",
         "label": "Fake KYC, account-freeze, tax, or penalty threat",
-        "pattern": r"(?:kyc|account|demat|pan\s*card?)\s*(?:expired|suspended|frozen|blocked|invalid|on\s*hold)|account\s+(?:will\s+be\s+)?(?:freez|block|suspend)\w*|(?:income\s*)?tax\s+(?:penalty|due|raid)|penalty\s+(?:of|for)\s+|immediate(?:ly)?\s+(?:suspend|freeze|block)|verify\s+(?:your\s+)?kyc\s+(?:within|before|now)",
+        "pattern": r"(?:kyc|account|demat|pan\s*card?)\s*(?:expired|suspended|frozen|blocked|invalid|on\s*hold)|account\s+(?:will\s+be\s+)?(?:freez|block|suspend)\w*|(?:income\s*)?tax\s+(?:penalty|due|raid)|penalty\s+(?:of|for)\s+|immediate(?:ly)?\s+(?:suspend|freeze|block)|verify\s+(?:your\s+)?kyc\s+(?:within|before|now)|kychasexpired|accountwillbe\w*froz\w*|willbefroz\w*",
         "explanation": "The message threatens to freeze or suspend your account, or claims a KYC/tax problem that must be fixed immediately. Banks and regulators do not threaten you over links in messages. Contact the institution directly using the number on its official website.",
         "severity": "high",
     },

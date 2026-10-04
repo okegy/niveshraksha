@@ -30,8 +30,6 @@ test("1. SENTINEL-X landing loads with hero, scan, threat feed, disclaimer", asy
   });
   await expect(page.getByText("SAFETY DISCLAIMER")).toBeVisible();
   await expect(page.getByText("LATEST THREAT VERIFICATIONS")).toBeVisible();
-  // Demo-mode honesty banner (global chrome)
-  await expect(page.getByText("Demo mode — advisor data is a synthetic fixture")).toBeVisible();
   // Threat feed cards rendered
   await expect(page.getByText(/Risk Score/).first()).toBeVisible();
 });

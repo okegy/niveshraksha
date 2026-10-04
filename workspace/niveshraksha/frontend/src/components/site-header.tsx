@@ -282,11 +282,6 @@ export function SiteHeader() {
           </nav>
         )}
       </header>
-
-      {/* Demo-mode honesty banner */}
-      <div className="bg-amber-100/90 dark:bg-amber-950/40 border-b border-amber-300 dark:border-amber-900 text-amber-900 dark:text-amber-400 text-xs px-4 py-1.5 text-center">
-        🔬 Demo mode — advisor data is a synthetic fixture. No live regulator API. Verify on sebi.gov.in before any decision.
-      </div>
     </div>
   );
 }

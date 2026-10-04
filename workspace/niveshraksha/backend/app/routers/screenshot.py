@@ -9,6 +9,7 @@ Security & privacy posture:
 - OCR availability is reported honestly; without it the endpoint still
   validates and guides.
 """
+import re
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile
@@ -29,23 +30,27 @@ ALLOWED_TYPES = ", ".join(sorted(ALLOWED_MAGICS))
 _analyzer = ScamAnalyzer()
 _ocr = None
 _ocr_checked = False
+_ocr_error: str | None = None
 
 
 def _get_ocr():
     """Lazy singletons; report honestly if the engine is missing."""
-    global _ocr, _ocr_checked
+    global _ocr, _ocr_checked, _ocr_error
     if not _ocr_checked:
         _ocr_checked = True
         try:
             from rapidocr_onnxruntime import RapidOCR
 
             _ocr = RapidOCR()
-        except Exception:
+            _ocr_error = None if _ocr else "engine initialised to None"
+        except Exception as exc:
             _ocr = None
+            _ocr_error = f"{type(exc).__name__}: {str(exc)[:160]}"
     return _ocr
 
 
 def _extract_text(image_bytes: bytes) -> str | None:
+    global _ocr_error
     ocr = _get_ocr()
     if ocr is None:
         return None
@@ -53,8 +58,18 @@ def _extract_text(image_bytes: bytes) -> str | None:
         result, _ = ocr(image_bytes)
         if not result:
             return ""
-        return " ".join(line[1] for line in result)
-    except Exception:
+        raw = " ".join(line[1] for line in result)
+        # OCR engines often glue words ("AccountwillbeFROZEN", "PayRs.499").
+        # Re-insert likely boundaries so the space-based rules can fire.
+        repaired = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", raw)
+        repaired = re.sub(r"(?<=[a-zA-Z])(?=\d)", " ", repaired)
+        repaired = re.sub(r"(?<=\d)(?=[a-zA-Z])", " ", repaired)
+        repaired = re.sub(r"([.,])(?=[A-Za-z])", r" ", repaired)
+        # Return the variant with MORE spaces — rules are space-sensitive and
+        # the glued original stays available for human review.
+        return repaired if len(repaired.split()) >= len(raw.split()) else raw
+    except Exception as exc:
+        _ocr_error = f"inference: {type(exc).__name__}: {str(exc)[:140]}"
         return None
 
 
@@ -105,8 +120,8 @@ async def analyze_screenshot(http_request: Request, file: UploadFile):
             ocr_available=False,
             summary=(
                 "Your screenshot passed safety validation and was not stored. "
-                "The OCR engine is not installed in this environment, so the text inside the "
-                "image could not be read. You can paste the text into the Message tab instead."
+                f"The OCR engine could not be used ({_ocr_error or 'not installed'}), so the text "
+                "inside the image could not be read. You can paste the text into the Message tab instead."
             ),
             safe_next_steps=[
                 "Paste the text from the screenshot into the Message tab — that check is fully available.",
