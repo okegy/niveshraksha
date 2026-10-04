@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <footer className="py-6 text-center text-slate-500 dark:text-slate-400 text-sm border-t bg-white dark:bg-slate-900 px-4">
-            <p>NiveshRaksha — Investor Resilience Platform. A Sangyan Hackathon Project.</p>
+            <p>NiveshRaksha — Investor Resilience Platform. Created by Akash Kishore.</p>
             <p className="mt-1 text-xs">
               Safety analysis only. Never investment advice. Verify everything through official sources.
             </p>

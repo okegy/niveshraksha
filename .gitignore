@@ -38,3 +38,8 @@ Thumbs.db
 # Scanners & tunnel binaries/logs (large, machine-local)
 agent_tools/cloudflared/
 agent_tools/scanners/
+
+# demo recordings (large binaries)
+docs/demo/*.webm
+docs/demo/*.mp4
+docs/demo/*.wav

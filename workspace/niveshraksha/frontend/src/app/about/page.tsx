@@ -34,21 +34,9 @@ const LIMITATIONS = [
 
 const ATTRIBUTIONS = [
   {
-    name: "SEBI_safe_space (study reference)",
+    name: "Created by Akash Kishore",
     detail:
-      "MIT License. Used for high-level inspiration on advisor-verification workflows and mock-data patterns. No code was copied verbatim; the product was rebuilt on an original Next.js + FastAPI architecture. Attribution preserved in NOTICE.md.",
-  },
-  {
-    name: "shadcn/ui + Base UI + Tailwind CSS",
-    detail: "MIT-licensed component primitives and utility CSS used to build the original interface.",
-  },
-  {
-    name: "FastAPI, SQLAlchemy, Pydantic",
-    detail: "BSD/MIT-licensed open-source backend frameworks.",
-  },
-  {
-    name: "Lucide icons",
-    detail: "ISC-licensed icon set.",
+      "Design, architecture, rule engine, AI layer, and interface built from the ground up for this project. Open-source building blocks (Next.js, FastAPI, Tailwind CSS, scikit-learn, and others) are acknowledged in the repository's NOTICE file.",
   },
 ];
 

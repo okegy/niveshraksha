@@ -53,7 +53,7 @@ const dict = {
     disclaimer_title: "Safety Disclaimer",
     disclaimer_body:
       'NiveshRaksha is an educational and safety tool. We do not offer financial, investment, or legal advice. A "no red flags" result does not guarantee that an investment is safe or legitimate. Always verify independently through official regulatory bodies like SEBI.',
-    footer: "NiveshRaksha — Investor Resilience Platform. A Sangyan Hackathon Project.",
+    footer: "NiveshRaksha — Investor Resilience Platform. Created by Akash Kishore.",
   },
   ta: {
     nav_analyze: "செய்தியை சரிபார்க்கவும்",
@@ -77,7 +77,7 @@ const dict = {
     disclaimer_title: "பாதுகாப்பு எச்சரிக்கை",
     disclaimer_body:
       "NiveshRaksha ஒரு கல்வி மற்றும் பாதுகாப்பு கருவி. நாங்கள் நிதி, முதலீடு அல்லது சட்ட ஆலோசனை வழங்குவதில்லை. 'எந்த சிவப்பு கொடியும் இல்லை' என்ற முடிவு ஒரு முதலீடு பாதுகாப்பானது என்று உத்தரவாதம் அளிக்காது. SEBI போன்ற அதிகாரப்பூர்வ அமைப்புகள் மூலம் எப்போதும் சுயாதீனமாக சரிபார்க்கவும்.",
-    footer: "NiveshRaksha — முதலீட்டாளர் மீள்திறன் தளம். Sangyan ஹேக்கத்தான் திட்டம்.",
+    footer: "NiveshRaksha — முதலீட்டாளர் மீள்திறன் தளம். Akash Kishore உருவாக்கியது.",
   },
   hi: {
     nav_analyze: "संदेश जांचें",
@@ -99,7 +99,7 @@ const dict = {
     disclaimer_title: "सुरक्षा अस्वीकरण",
     disclaimer_body:
       "NiveshRaksha एक शैक्षिक और सुरक्षा उपकरण है। हम वित्तीय, निवेश या कानूनी सलाह नहीं देते। 'कोई लाल झंडा नहीं' का परिणाम निवेश के सुरक्षित होने की गारंटी नहीं है। SEBI जैसे आधिकारिक नियामकों से हमेशा स्वतंत्र रूप से जांचें।",
-    footer: "NiveshRaksha — निवेशक मजबूती मंच। Sangyan हैकाथॉन परियोजना।",
+    footer: "NiveshRaksha — निवेशक मजबूती मंच। Akash Kishore द्वारा निर्मित।",
   },
   te: {
     nav_analyze: "సందేశం తనిఖీ",
@@ -121,7 +121,7 @@ const dict = {
     disclaimer_title: "భద్రతా నిరాకరణ",
     disclaimer_body:
       "NiveshRaksha ఒక విద్యా మరియు భద్రతా సాధనం. మేము ఆర్థిక, పెట్టుబడి లేదా చట్టపరమైన సలహా ఇవ్వము. 'ఎటువంటి రెడ్ ఫ్లాగ్స్ లేవు' అనే ఫలితం పెట్టుబడి సురక్షితమే అని హామీ ఇవ్వదు. SEBI వంటి అధికారిక సంస్థల ద్వారా ఎప్పుడూ స్వతంత్రంగా ధృవీకరించండి.",
-    footer: "NiveshRaksha — పెట్టుబడిదారు మనోబల వేదిక. Sangyan హ్యాకతాన్ ప్రాజెక్ట్.",
+    footer: "NiveshRaksha — పెట్టుబడిదారు మనోబల వేదిక. Akash Kishore ద్వారా రూపొందించబడింది.",
   },
   ml: {
     nav_analyze: "സന്ദേശം പരിശോധിക്കുക",
@@ -143,7 +143,7 @@ const dict = {
     disclaimer_title: "സുരക്ഷാ ഡിസ്ക്ലെയ്മർ",
     disclaimer_body:
       "NiveshRaksha ഒരു വിദ്യാഭ്യാസ, സുരക്ഷാ ഉപകരണമാണ്. ഞങ്ങൾ സാമ്പത്തിക, നിക്ഷേപ, നിയമ ഉപദേശം നൽകുന്നില്ല. 'റെഡ് ഫ്ലാഗുകളില്ല' എന്ന ഫലം നിക്ഷേപം സുരക്ഷിതമാണെന്ന് ഉറപ്പ് നൽകുന്നില്ല. SEBI പോലുള്ള ഔദ്യോഗിക നിയന്ത്രണ സ്ഥാപനങ്ങളിലൂടെ എപ്പോഴും സ്വതന്ത്രമായി സ്ഥിരീകരിക്കുക.",
-    footer: "NiveshRaksha — നിക്ഷേപക പ്രതിരോധ വേദി. Sangyan ഹാക്കത്തോൺ പദ്ധതി.",
+    footer: "NiveshRaksha — നിക്ഷേപക പ്രതിരോധ വേദി. Akash Kishore നിർമ്മിച്ചത്.",
   },
   kn: {
     nav_analyze: "ಸಂದೇಶ ಪರಿಶೀಲನೆ",
@@ -165,7 +165,7 @@ const dict = {
     disclaimer_title: "ಸುರಕ್ಷತಾ ಅಸ್ವೀಕರಣ",
     disclaimer_body:
       "NiveshRaksha ಒಂದು ಶೈಕ್ಷಣಿಕ ಮತ್ತು ಸುರಕ್ಷತಾ ಸಾಧನ. ನಾವು ಆರ್ಥಿಕ, ಹೂಡಿಕೆ ಅಥವಾ ಕಾನೂನು ಸಲಹೆ ನೀಡುವುದಿಲ್ಲ. 'ಯಾವುದೇ ರೆಡ್ ಫ್ಲ್ಯಾಗ್ ಇಲ್ಲ' ಎಂಬ ಫಲಿತಾಂಶ ಹೂಡಿಕೆ ಸುರಕ್ಷಿತ ಎಂದು ಖಾತರಿ ನೀಡುವುದಿಲ್ಲ. SEBI ಯಂತಹ ಅಧಿಕೃತ ನಿಯಂತ್ರಕ ಸಂಸ್ಥೆಗಳ ಮೂಲಕ ಯಾವಾಗಲೂ ಸ್ವತಂತ್ರವಾಗಿ ಪರಿಶೀಲಿಸಿ.",
-    footer: "NiveshRaksha — ಹೂಡಿಕೆದಾರ ಸ್ಥಿತಿಸ್ಥಾಪಕತ್ವ ವೇದಿಕೆ. Sangyan ಹ್ಯಾಕಥಾನ್ ಯೋಜನೆ.",
+    footer: "NiveshRaksha — ಹೂಡಿಕೆದಾರ ಸ್ಥಿತಿಸ್ಥಾಪಕತ್ವ ವೇದಿಕೆ. Akash Kishore ರಚಿಸಿದ್ದಾರೆ.",
   },
   bn: {
     nav_analyze: "বার্তা যাচাই",
@@ -185,7 +185,7 @@ const dict = {
     verify_now: "এখনই যাচাই করুন",
     disclaimer_title: "নিরাপত্তা সতর্কতা",
     disclaimer_body: "NiveshRaksha একটি শিক্ষামূলক ও নিরাপত্তা সরঞ্জাম। আমরা আর্থিক, বিনিয়োগ বা আইনি পরামর্শ দিই না। 'কোনো লাল পতাকা নেই' মানে বিনিয়োগ নিরাপদ — এমন গ্যারান্টি নয়। SEBI-এর মতো অফিসিয়াল সূত্রে স্বাধীনভাবে যাচাই করুন।",
-    footer: "NiveshRaksha — বিনিয়োগকারী স্থিতিস্থাপকতা প্ল্যাটফর্ম। Sangyan হ্যাকাথন প্রকল্প।",
+    footer: "NiveshRaksha — বিনিয়োগকারী স্থিতিস্থাপকতা প্ল্যাটফর্ম। Akash Kishore নির্মিত।",
   },
   mr: {
     nav_analyze: "संदेश तपासा",
@@ -205,7 +205,7 @@ const dict = {
     verify_now: "आता तपासा",
     disclaimer_title: "सुरक्षा सूचना",
     disclaimer_body: "NiveshRaksha हे शैक्षणिक व सुरक्षा साधन आहे. आम्ही आर्थिक, गुंतवणूक किंवा कायदेशीर सल्ला देत नाही. 'कोणतीही चिन्हे नाहीत' म्हणजे गुंतवणूक सुरक्षित असल्याची खात्री नाही. SEBI सारख्या अधिकृत संस्थांकडून स्वतंत्रपणे तपासा.",
-    footer: "NiveshRaksha — गुंतवणूकदार स्थैर्य व्यासपीठ. Sangyan हॅकॅथॉन प्रकल्प.",
+    footer: "NiveshRaksha — गुंतवणूकदार स्थैर्य व्यासपीठ. Akash Kishore यांनी बनावले.",
   },
   gu: {
     nav_analyze: "સંદેશ તપાસો",
@@ -225,7 +225,7 @@ const dict = {
     verify_now: "હવે ચકાસો",
     disclaimer_title: "સલામતી નિરાકરણ",
     disclaimer_body: "NiveshRaksha એ શૈક્ષણિક અને સુરક્ષા સાધન છે. આપણે નાણાકીય, રોકાણ કે કાનૂની સલાહ આપતા નથી. 'કોઈ રેડ ફ્લેગ નથી' એટલે રોકાણ સલામત — આવી ગેરંટી નથી. SEBI જેવી અધિકૃત સંસ્થા પાસેથી સ્વતંત્ર રીતે ચકાસો.",
-    footer: "NiveshRaksha — રોકાણકાર સ્થિતિસ્થાપકતા પ્લેટફોર્મ. Sangyan હેકાથોન પ્રોજેક્ટ.",
+    footer: "NiveshRaksha — રોકાણકાર સ્થિતિસ્થાપકતા પ્લેટફોર્મ. Akash Kishore દ્વારા નિર્મિત.",
   },
   or: {
     nav_analyze: "ମେସେଜ ଯାଞ୍ଚ",
@@ -245,7 +245,7 @@ const dict = {
     verify_now: "ଏବେ ଯାଞ୍ଚ କରନ୍ତୁ",
     disclaimer_title: "ନିରାପତ୍ତା ଘୋଷଣା",
     disclaimer_body: "NiveshRaksha ଏକ ଶିକ୍ଷାମୂଳକ ଓ ନିରାପତ୍ତା ସାଧନ। ଆମେ ଆର୍ଥିକ, ବିନିଯୋଗ କିମ୍ବା ଆଇନଗତ ପରାମର୍ଶ ଦିଇ ନାହଁ। 'କୌଣସି ଚିହ୍ନ ନାହିଁ' ଅର୍ଥ ବିନିଯୋଗ ସୁରକ୍ଷିତ — ଏହା ଗାରଣ୍ଟି ନୁହେଁ। SEBI ପରି ଅଫିସିଆଲ୍ ଅନୁଷ୍ଠାନ ଦ୍ୱାରା ସ୍ୱାଧୀନ ଭାବରେ ଯାଞ୍ଚ କରନ୍ତୁ।",
-    footer: "NiveshRaksha — ବିନିଯୋଗକାରୀ ସ୍ଥିତିସ୍ଥାପକତା ପ୍ଲାଟଫର୍ମ। Sangyan ହ୍ୟାକାଥନ ପ୍ରକଳ୍ପ।",
+    footer: "NiveshRaksha — ବିନିଯୋଗକାରୀ ସ୍ଥିତିସ୍ଥାପକତା ପ୍ଲାଟଫର୍ମ। Akash Kishore ଦ୍ୱାରା ନିର୍ମିତ।",
   },
   pa: {
     nav_analyze: "ਸੁਨੇਹਾ ਜਾਂਚ",
@@ -265,7 +265,7 @@ const dict = {
     verify_now: "ਹੁਣੇ ਜਾਂਚੋ",
     disclaimer_title: "ਸੁਰੱਖਿਆ ਐਲਾਨ",
     disclaimer_body: "NiveshRaksha ਇੱਕ ਸਿੱਖਿਅਕ ਅਤੇ ਸੁਰੱਖਿਆ ਸਾਧਨ ਹੈ। ਅਸੀਂ ਵਿੱਤੀ, ਨਿਵੇਸ਼ ਜਾਂ ਕਾਨੂੰਨੀ ਸਲਾਹ ਨਹੀਂ ਦਿੰਦੇ। 'ਕੋਈ ਲਾਲ ਝੰਡੇ ਨਹੀਂ' ਦਾ ਮਤਲਬ ਨਿਵੇਸ਼ ਸੁਰੱਖਿਅਤ ਹੈ — ਅਜਿਹੀ ਗਾਰੰਟੀ ਨਹੀਂ। SEBI ਵਰਗੀਆਂ ਅਧਿਕਾਰਤ ਸੰਸਥਾਵਾਂ ਤੋਂ ਸੁਤੰਤਰ ਤੌਰ ਤੇ ਜਾਂਚੋ।",
-    footer: "NiveshRaksha — ਨਿਵੇਸ਼ਕ ਮਜ਼ਬੂਤੀ ਪਲੇਟਫਾਰਮ। Sangyan ਹੈਕਾਥਾਨ ਪ੍ਰੋਜੈਕਟ।",
+    footer: "NiveshRaksha — ਨਿਵੇਸ਼ਕ ਮਜ਼ਬੂਤੀ ਪਲੇਟਫਾਰਮ। Akash Kishore ਵੱਲੋਂ ਬਣਾਇਆ।",
   },
   as: {
     nav_analyze: "বাৰ্তা পৰীক্ষা",
@@ -285,7 +285,7 @@ const dict = {
     verify_now: "এতিয়াই সত্যাপন কৰক",
     disclaimer_title: "সুৰক্ষা ঘোষণা",
     disclaimer_body: "NiveshRaksha এখন শিক্ষামূলক আৰু সুৰক্ষা সঁজুলি। আমি বিত্তীয়, বিনিয়োগ বা আইনী পৰামৰ্শ নিদিওঁ। 'কোনো লাল পতাকা নাই' মানে বিনিয়োগ সুৰক্ষিত — এনে নিশ্চয়তা নহয়। SEBI ৰ দৰে আধিকাৰিক অনুষ্ঠানৰ জৰিয়তে স্বাধীনভাৱে সত্যাপন কৰক।",
-    footer: "NiveshRaksha — বিনিয়োগকাৰী স্থিতিস্থাপকতা প্লেটফৰ্ম। Sangyan হেকাথন প্ৰকল্প।",
+    footer: "NiveshRaksha — বিনিয়োগকাৰী স্থিতিস্থাপকতা প্লেটফৰ্ম। Akash Kishore ৰ দ্বাৰা নিৰ্মিত।",
   },
 } as const;
 

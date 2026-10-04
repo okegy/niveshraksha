@@ -1,0 +1,232 @@
+[
+  {
+    "label": "video start",
+    "kind": "video",
+    "offset_ms": 407
+  },
+  {
+    "label": "TTS narr-1 (621KB)",
+    "kind": "audio",
+    "offset_ms": 8257
+  },
+  {
+    "label": "landing tour done",
+    "kind": "step",
+    "offset_ms": 14374
+  },
+  {
+    "label": "TTS narr-2 (401KB)",
+    "kind": "audio",
+    "offset_ms": 17335
+  },
+  {
+    "label": "widget demo",
+    "kind": "step",
+    "offset_ms": 22350
+  },
+  {
+    "label": "TTS undefined (290KB)",
+    "kind": "audio",
+    "offset_ms": 24635
+  },
+  {
+    "label": "TTS undefined (507KB)",
+    "kind": "audio",
+    "offset_ms": 31712
+  },
+  {
+    "label": "hero scan: URL = CRITICAL",
+    "kind": "step",
+    "offset_ms": 36391
+  },
+  {
+    "label": "TTS undefined (368KB)",
+    "kind": "audio",
+    "offset_ms": 42132
+  },
+  {
+    "label": "TTS undefined (235KB)",
+    "kind": "audio",
+    "offset_ms": 48688
+  },
+  {
+    "label": "crypto + email scans",
+    "kind": "step",
+    "offset_ms": 49903
+  },
+  {
+    "label": "TTS undefined (353KB)",
+    "kind": "audio",
+    "offset_ms": 54739
+  },
+  {
+    "label": "fraud modal submitted",
+    "kind": "step",
+    "offset_ms": 60376
+  },
+  {
+    "label": "TTS undefined (279KB)",
+    "kind": "audio",
+    "offset_ms": 64039
+  },
+  {
+    "label": "TTS undefined (742KB)",
+    "kind": "audio",
+    "offset_ms": 75963
+  },
+  {
+    "label": "analyze message: full result",
+    "kind": "step",
+    "offset_ms": 84620
+  },
+  {
+    "label": "TTS undefined (419KB)",
+    "kind": "audio",
+    "offset_ms": 91837
+  },
+  {
+    "label": "analyze URL tab",
+    "kind": "step",
+    "offset_ms": 93054
+  },
+  {
+    "label": "TTS undefined (551KB)",
+    "kind": "audio",
+    "offset_ms": 97951
+  },
+  {
+    "label": "TTS undefined (419KB)",
+    "kind": "audio",
+    "offset_ms": 118005
+  },
+  {
+    "label": "screenshot OCR demo",
+    "kind": "step",
+    "offset_ms": 119511
+  },
+  {
+    "label": "TTS undefined (375KB)",
+    "kind": "audio",
+    "offset_ms": 122907
+  },
+  {
+    "label": "TTS undefined (423KB)",
+    "kind": "audio",
+    "offset_ms": 132555
+  },
+  {
+    "label": "TTS undefined (404KB)",
+    "kind": "audio",
+    "offset_ms": 140945
+  },
+  {
+    "label": "verify both states",
+    "kind": "step",
+    "offset_ms": 140945
+  },
+  {
+    "label": "TTS undefined (437KB)",
+    "kind": "audio",
+    "offset_ms": 143674
+  },
+  {
+    "label": "TTS undefined (390KB)",
+    "kind": "audio",
+    "offset_ms": 154673
+  },
+  {
+    "label": "chat: story + tool",
+    "kind": "step",
+    "offset_ms": 158733
+  },
+  {
+    "label": "TTS undefined (114KB)",
+    "kind": "audio",
+    "offset_ms": 160840
+  },
+  {
+    "label": "TTS undefined (379KB)",
+    "kind": "audio",
+    "offset_ms": 169206
+  },
+  {
+    "label": "TTS undefined (397KB)",
+    "kind": "audio",
+    "offset_ms": 177046
+  },
+  {
+    "label": "chat: golden hour + refusal",
+    "kind": "step",
+    "offset_ms": 177050
+  },
+  {
+    "label": "TTS undefined (511KB)",
+    "kind": "audio",
+    "offset_ms": 180218
+  },
+  {
+    "label": "pause interactive",
+    "kind": "step",
+    "offset_ms": 188919
+  },
+  {
+    "label": "TTS undefined (492KB)",
+    "kind": "audio",
+    "offset_ms": 192328
+  },
+  {
+    "label": "TTS undefined (500KB)",
+    "kind": "audio",
+    "offset_ms": 202264
+  },
+  {
+    "label": "report redaction",
+    "kind": "step",
+    "offset_ms": 207135
+  },
+  {
+    "label": "TTS undefined (360KB)",
+    "kind": "audio",
+    "offset_ms": 209939
+  },
+  {
+    "label": "TTS undefined (213KB)",
+    "kind": "audio",
+    "offset_ms": 216513
+  },
+  {
+    "label": "learn + hindi",
+    "kind": "step",
+    "offset_ms": 218044
+  },
+  {
+    "label": "TTS undefined (393KB)",
+    "kind": "audio",
+    "offset_ms": 220886
+  },
+  {
+    "label": "settings demo",
+    "kind": "step",
+    "offset_ms": 226102
+  },
+  {
+    "label": "TTS undefined (441KB)",
+    "kind": "audio",
+    "offset_ms": 229418
+  },
+  {
+    "label": "about",
+    "kind": "step",
+    "offset_ms": 234623
+  },
+  {
+    "label": "TTS narr-end (735KB)",
+    "kind": "audio",
+    "offset_ms": 241628
+  },
+  {
+    "label": "end",
+    "kind": "step",
+    "offset_ms": 244132
+  }
+]
