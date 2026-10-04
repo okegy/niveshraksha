@@ -184,6 +184,12 @@ export const api = {
   getSourceStatus: () =>
     request<{ sources: SourceStatusItem[]; policy: string }>("/api/v1/sources/status"),
 
+  redactPreview: (content: string) =>
+    request<{ redacted_content: string; note: string }>("/api/v1/reports/preview", {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+
   chatMessage: (payload: { message: string; language: string }) =>
     request<ChatReply>("/api/v1/chat/message", {
       method: "POST",

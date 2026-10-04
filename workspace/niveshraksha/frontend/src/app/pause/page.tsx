@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +29,17 @@ const QUESTIONS = [
 
 export default function PausePage() {
   const [checkedItems, setCheckedItems] = useState({ pressure: false, verified: false, personalInfo: false });
+  const [secondsLeft, setSecondsLeft] = useState(30);
   const allChecked = Object.values(checkedItems).every(Boolean);
+
+  // The master prompt's "30-second pause": a visible timer that starts on
+  // arrival and simply reaches zero — it never blocks the checkboxes.
+  const timerRunning = secondsLeft > 0;
+  useEffect(() => {
+    if (!timerRunning) return;
+    const id = setInterval(() => setSecondsLeft((v) => Math.max(0, v - 1)), 1000);
+    return () => clearInterval(id);
+  }, [timerRunning]);
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4 sm:p-6">
@@ -40,6 +50,9 @@ export default function PausePage() {
               <Hand className="h-8 w-8 text-amber-600 dark:text-amber-500" aria-hidden />
             </div>
             <CardTitle className="text-2xl text-amber-900 dark:text-amber-500">Take a 30-second pause</CardTitle>
+            <p className="mt-2 text-3xl font-bold tabular-nums text-amber-700 dark:text-amber-400" role="timer" aria-live="off">
+              {secondsLeft > 0 ? `0:${String(secondsLeft).padStart(2, "0")}` : "0:00 — pause complete"}
+            </p>
             <CardDescription className="text-amber-800/70 dark:text-amber-400/70 text-base mt-2">
               Before you proceed with any payment or investment, answer these three questions honestly.
             </CardDescription>
@@ -84,7 +97,9 @@ export default function PausePage() {
                 <span>Acknowledge all three points to continue.</span>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3 w-full">
+            <div
+              className={`grid grid-cols-2 gap-3 w-full transition-all duration-500 ${allChecked ? "opacity-100 translate-y-0 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2" : "opacity-50"}`}
+            >
               <Link href="/analyze" className="w-full">
                 <Button
                   className={`w-full py-6 text-base ${allChecked ? "bg-amber-600 hover:bg-amber-700 text-white" : "opacity-50 cursor-not-allowed pointer-events-none"}`}

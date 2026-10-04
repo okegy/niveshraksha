@@ -1,4 +1,5 @@
 fastapi[all]
+starlette>=0.37.2,<0.39  # pinned: newer starlette breaks fastapi 0.115's Router kwargs
 pydantic
 SQLAlchemy
 psycopg2-binary

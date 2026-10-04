@@ -69,6 +69,17 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
+        <div
+          className="mb-6 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-3"
+          role="note"
+        >
+          <ShieldCheck className="h-6 w-6 text-teal-600 dark:text-teal-400 shrink-0" aria-hidden />
+          <p>
+            <strong>NiveshRaksha is NOT affiliated with SEBI, RBI, NPCI, or any regulator, bank, or
+            government body.</strong> All advisor data in this demo is a clearly-labelled synthetic
+            fixture. No endorsement is claimed or implied.
+          </p>
+        </div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
             <ShieldCheck className="h-8 w-8 text-teal-600" aria-hidden /> About NiveshRaksha

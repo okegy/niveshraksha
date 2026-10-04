@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ShieldAlert, ShieldCheck, FileLock2 } from "lucide-react";
+import { useState } from "react";
+import { AlertTriangle, Check, Copy, ShieldAlert, ShieldCheck, FileLock2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { AnalysisResult } from "@/lib/api";
 
 const RISK_PRESENTATION = {
@@ -40,13 +40,18 @@ export function ResultView({ result }: { result: AnalysisResult }) {
 
   return (
     <div className="space-y-4" aria-live="polite">
-      <Alert variant={result.risk_level === "high" ? "destructive" : "default"} className={p.tone}>
-        {p.icon}
-        <AlertTitle className={`text-lg font-semibold ${p.titleClass}`}>{p.label}</AlertTitle>
-        <AlertDescription className="mt-2 text-slate-700 dark:text-slate-300">
-          {result.summary}
-        </AlertDescription>
-      </Alert>
+      <div
+        role="status"
+        className={`-mx-4 sm:-mx-6 px-4 sm:px-6 py-5 border-y-2 ${p.tone} border-l-8 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2`}
+      >
+        <div className="max-w-5xl mx-auto flex items-start gap-3">
+          <span className="motion-safe:animate-in motion-safe:zoom-in-50">{p.icon}</span>
+          <div>
+            <p className={`text-xl font-bold ${p.titleClass}`}>{p.label}</p>
+            <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{result.summary}</p>
+          </div>
+        </div>
+      </div>
 
       {result.note && (
         <p className="text-xs text-slate-500 dark:text-slate-400">{result.note}</p>
@@ -102,8 +107,10 @@ export function ResultView({ result }: { result: AnalysisResult }) {
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{flag.explanation}</p>
                   {flag.matched_text && (
-                    <p className="mt-2 text-xs font-mono bg-slate-100 dark:bg-slate-800 rounded px-2 py-1 inline-block max-w-full break-words">
-                      &ldquo;{flag.matched_text}&rdquo;
+                    <p className="mt-2 max-w-full break-words">
+                      <mark className="text-xs font-mono bg-amber-200/80 dark:bg-amber-500/30 text-slate-900 dark:text-amber-100 rounded px-2 py-1">
+                        &ldquo;{flag.matched_text}&rdquo;
+                      </mark>
                     </p>
                   )}
                 </li>
@@ -136,14 +143,22 @@ export function ResultView({ result }: { result: AnalysisResult }) {
               <li>No official source was contacted for this analysis — it is a rule-based check of the text or link only.</li>
               <li>Advisor or company claims must be verified separately on the official SEBI website.</li>
             </ul>
-            {(result.what_we_verified ?? []).length > 0 && (
-              <ul className="mt-3 space-y-2 text-xs text-slate-500 dark:text-slate-400">
-                {result.what_we_verified!.map((s, idx) => (
-                  <li key={idx}>
-                    {s.source_name}: {s.status}
-                  </li>
-                ))}
-              </ul>
+            {(result.what_we_verified ?? []).length > 0 ? (
+              <>
+                <p className="mt-3 text-xs font-medium text-slate-600 dark:text-slate-300">What we did verify:</p>
+                <ul className="mt-1 space-y-1 text-xs text-teal-700 dark:text-teal-400">
+                  {result.what_we_verified!.map((s, idx) => (
+                    <li key={idx}>
+                      {s.source_name}: {s.status}
+                      {s.retrieved_at ? ` · ${new Date(s.retrieved_at).toLocaleString()}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                Nothing was verified against external sources in this run.
+              </p>
             )}
           </CardContent>
         </Card>
@@ -170,11 +185,44 @@ export function ResultView({ result }: { result: AnalysisResult }) {
           </Button>
         </Link>
         {result.analysis_id && result.analysis_id !== "local-only" && (
-          <Link href={`/result/${result.analysis_id}`} className="self-center text-sm text-slate-500 underline hover:text-slate-700">
-            Stable link to this result
-          </Link>
+          <ShareLink analysisId={result.analysis_id} />
         )}
       </div>
     </div>
+  );
+}
+
+function ShareLink({ analysisId }: { analysisId: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window === "undefined" ? "" : `${window.location.origin}/result/${analysisId}`;
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <span className="self-center flex items-center gap-2 text-sm text-slate-500">
+      <Link href={`/result/${analysisId}`} className="underline hover:text-slate-700">
+        Stable link to this result
+      </Link>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label="Copy result link to clipboard"
+        className="inline-flex items-center gap-1 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+      >
+        {copied ? <Check className="h-3 w-3 text-teal-600" aria-hidden /> : <Copy className="h-3 w-3" aria-hidden />}
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </span>
   );
 }

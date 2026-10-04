@@ -53,7 +53,16 @@ export default function VerifyPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="regNo">SEBI Registration Number (e.g., INA000000000)</Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="regNo">SEBI Registration Number (e.g., INA000000000)</Label>
+                  <button
+                    type="button"
+                    onClick={() => setRegNo("INA000000001")}
+                    className="text-xs text-teal-700 dark:text-teal-400 underline hover:no-underline"
+                  >
+                    Try an example
+                  </button>
+                </div>
                 <Input
                   id="regNo"
                   placeholder="INA..."
@@ -77,9 +86,13 @@ export default function VerifyPage() {
                   autoComplete="off"
                 />
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Demo mode: this checks a clearly-labelled synthetic fixture, not live regulator data. The result page always tells you which source was used.
-              </p>
+              <Alert className="border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30">
+                <AlertTriangle className="h-4 w-4 text-amber-600" aria-hidden />
+                <AlertTitle className="text-sm text-amber-800 dark:text-amber-500">Demo mode</AlertTitle>
+                <AlertDescription className="text-xs text-amber-900/80 dark:text-amber-400/90">
+                  This checks a clearly-labelled synthetic fixture, not live regulator data. Always confirm on the official SEBI website before deciding.
+                </AlertDescription>
+              </Alert>
             </CardContent>
             <CardFooter>
               <Button
@@ -159,6 +172,18 @@ export default function VerifyPage() {
                 {result.uncertainty_note}
               </AlertDescription>
             </Alert>
+
+            <a
+              href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button variant="outline" className="w-full min-h-[48px] border-teal-600 text-teal-700 hover:bg-teal-50 dark:text-teal-400">
+                <ExternalLink className="mr-2 h-4 w-4" aria-hidden />
+                Open the official SEBI intermediaries search
+              </Button>
+            </a>
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -59,6 +60,7 @@ export default function LearnPage() {
   const [offline, setOffline] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Reading device-local progress once on mount is a legitimate external
@@ -126,9 +128,17 @@ export default function LearnPage() {
               Short, plain-language lessons to keep your money safe. Educational content only — never investment advice.
             </p>
             {modules.length > 0 && (
-              <p className="text-sm text-teal-700 dark:text-teal-400 mt-2" aria-live="polite">
-                Progress: {doneCount} of {modules.length} modules completed
-              </p>
+              <div className="mt-3" aria-live="polite">
+                <p className="text-sm text-teal-700 dark:text-teal-400 mb-1">
+                  Progress: {doneCount} of {modules.length} modules completed
+                </p>
+                <progress
+                  value={doneCount}
+                  max={modules.length}
+                  className="w-56 h-2.5 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-bar]:bg-slate-200 dark:[&::-webkit-progress-bar]:bg-slate-800 [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-teal-600 [&::-moz-progress-bar]:bg-teal-600"
+                  aria-label={`${doneCount} of ${modules.length} modules completed`}
+                />
+              </div>
             )}
           </div>
           <Link href="/pause">
@@ -161,15 +171,28 @@ export default function LearnPage() {
                   className={`shadow-sm border-2 ${isDone ? "border-teal-300 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/10" : "border-slate-200 dark:border-slate-800"}`}
                 >
                   <CardHeader className="pb-2">
-                    <div className="mb-2 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center shadow-sm">
-                      <Icon className="h-6 w-6 text-teal-600 dark:text-teal-400" aria-hidden />
-                    </div>
-                    <CardTitle className="text-xl">{mod.title}</CardTitle>
-                    <CardDescription className="text-slate-700 dark:text-slate-300 font-medium">
-                      {mod.description}
-                    </CardDescription>
+                    <button
+                      type="button"
+                      className="text-left"
+                      onClick={() => setExpanded((prev) => ({ ...prev, [mod.id]: !prev[mod.id] }))}
+                      aria-expanded={!!expanded[mod.id]}
+                    >
+                      <div className="mb-2 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center shadow-sm">
+                        <Icon className="h-6 w-6 text-teal-600 dark:text-teal-400" aria-hidden />
+                      </div>
+                      <CardTitle className="text-xl flex items-center justify-between gap-2">
+                        {mod.title}
+                        <ChevronDown
+                          className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${expanded[mod.id] ? "rotate-180" : ""}`}
+                          aria-hidden
+                        />
+                      </CardTitle>
+                      <CardDescription className="text-slate-700 dark:text-slate-300 font-medium">
+                        {mod.description}
+                      </CardDescription>
+                    </button>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className={expanded[mod.id] ? "" : "hidden"}>
                     <ul className="mt-2 space-y-3">
                       {mod.content.map((point, i) => (
                         <li key={i} className="flex items-start text-sm text-slate-600 dark:text-slate-400">
@@ -196,24 +219,24 @@ export default function LearnPage() {
           </div>
         )}
 
-        <div className="mt-12 bg-white dark:bg-slate-900 rounded-xl p-8 border shadow-sm text-center">
-          <h2 className="text-2xl font-bold mb-4">Are you a victim of financial fraud?</h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+        <div className="mt-12 rounded-xl p-8 text-center bg-red-950 text-white border border-red-900 shadow-md">
+          <h2 className="text-2xl font-bold mb-4 text-white">Are you a victim of financial fraud?</h2>
+          <p className="text-red-200 mb-6 max-w-2xl mx-auto">
             Report it immediately. The golden hour matters — money moved to fraudsters can sometimes be intercepted if reported fast.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">
-              <Button className="w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+              <Button className="w-full sm:w-auto bg-white text-red-900 hover:bg-red-50 font-semibold">
                 Visit cybercrime.gov.in <ExternalLink className="ml-2 h-4 w-4" aria-hidden />
               </Button>
             </a>
             <a href="tel:1930">
-              <Button variant="outline" className="w-full sm:w-auto min-h-[48px]">
+              <Button variant="outline" className="w-full sm:w-auto min-h-[48px] bg-transparent border-red-300 text-white hover:bg-red-900 hover:text-white">
                 Call helpline 1930
               </Button>
             </a>
             <Link href="/report">
-              <Button variant="outline" className="w-full sm:w-auto min-h-[48px] border-teal-600 text-teal-700 dark:text-teal-400">
+              <Button variant="outline" className="w-full sm:w-auto min-h-[48px] bg-transparent border-teal-400 text-teal-300 hover:bg-teal-950">
                 <CheckCircle className="mr-2 h-4 w-4" aria-hidden /> Prepare evidence draft
               </Button>
             </Link>

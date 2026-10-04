@@ -1,6 +1,6 @@
 # Test Report — NiveshRaksha
 
-Build date: 2026-10-04. All numbers reproducible with the commands shown.
+Build date: 2026-10-04 (updated after the completion-prompt pass). All numbers reproducible with the commands shown.
 
 ## Backend
 
@@ -14,7 +14,8 @@ Command: `cd workspace/niveshraksha/backend && python -m pytest -q`
 | `test_api.py` — full API integration incl. consent, deletion, honesty copy, no-advice assertion, 6 languages + script detection, provenance | 24 | ✅ pass |
 | `test_evaluation.py` — FP/FN harness over `evaluation/synthetic_cases.json` | 10 | ✅ pass (0 FP, 0 FN) |
 | `test_ratelimit.py` — sliding-window limiter units (limit, isolation, window expiry) | 3 | ✅ pass |
-| **Total** | **70** | **✅ all pass** |
+| `test_api.py` extra: redaction-preview endpoint | included above | ✅ |
+| **Total** | **86** | **✅ all pass** |
 
 Static gates (same directory):
 
@@ -46,20 +47,41 @@ Routes: `/`, `/analyze`, `/result/[id]`, `/verify`, `/pause`, `/learn`, `/report
 - SSR HTML of `/` contains the 6-language select; all static chunks load (HTTP 200).
 - Browser walkthrough (earlier session): landing → analyze (high-risk result) → `/result/[id]` → expiry 404 → verify (match + not-found honesty) all verified visually in the in-app browser. Language switcher verified via SSR HTML + API after the browser guest became unavailable.
 
-## Security & container scans
+## Security & container scans (REAL RUNS)
 
-| Tool | Status |
-|---|---|
-| gitleaks / semgrep / trivy | ⬜ Not installed in the build environment — commands documented in `SECURITY.md`; repo contains no secrets by construction (`.env.example` only, synthetic fixtures). |
-| `docker compose config` | ⬜ Docker unavailable in this environment; compose file + non-root Dockerfiles + healthchecks reviewed manually. |
+| Tool | Version | Result |
+|---|---|---|
+| gitleaks (`detect --source . --redact`) | 8.28.0 | ✅ **no leaks found** across all 16 commits |
+| semgrep (`--config p/ci`) | 1.179.0 | ✅ **0 findings** — 50 rules × 101 files |
+| trivy (`fs --severity HIGH,CRITICAL --scanners vuln,secret,misconfig`) | 0.75.0 | ✅ 0 secrets, 0 Dockerfile misconfigs; ⚠ **1 HIGH**: `braces@3.0.3` CVE-2026-93687 (DoS via deeply nested patterns) — transitive dev-toolchain dependency, **no fixed version released upstream yet**; accepted with justification (build-time tooling path, not runtime-serving code) |
+| Docker Compose end-to-end | — | ⬜ Docker Engine not installed in this environment; `docker compose config` + `up --build` cannot execute. Compose YAML, non-root Dockerfiles and healthchecks are reviewed; trivy misconfig scan of both Dockerfiles is clean. |
+
+Note: semgrep's installer upgraded `starlette` past fastapi 0.115's supported range; `requirements.txt` now pins `starlette<0.39` to prevent recurrence.
 
 ## No-prohibited-advice guarantee
 
 Every API response in `test_api.py` passes `assert_no_advice`, which scans serialized output for tokens such as "you should buy/sell/hold", "we recommend buying", "price target", "expected return", "strong buy". ✅ enforced on all suites.
 
+## Playwright E2E (master-prompt scenarios)
+
+`cd workspace/niveshraksha/frontend && npm run test:e2e` (Playwright 1.63, Chromium):
+
+| # | Scenario | Result |
+|---|---|---|
+| 1 | Landing page loads with hero + disclaimer + demo-mode banner | ✅ |
+| 2 | Message analysis returns a risk level | ✅ |
+| 3 | High-risk result: 3+ flags, safe next steps, evidence spans | ✅ |
+| 4 | Advisor verification: match + DEMO FIXTURE uncertainty note | ✅ |
+| 5 | Tamil switch: nav + Tamil education content loads | ✅ |
+| 6 | Incident draft: create with consent → delete → confirmed gone | ✅ |
+| 7 | Backend offline: graceful "Could not reach…" error | ✅ |
+| 8 | No-recommendation guarantee on result text | ✅ |
+
+**8/8 passing.** (`workspace/niveshraksha/tests/e2e` is a junction to `frontend/e2e` for Node module resolution.)
+
 ## Known gaps (honest list)
 
-1. No Playwright E2E suite installed (browsers unavailable in this environment); flows verified via live API + SSR + earlier in-browser walkthrough instead.
-2. No automated accessibility audit (axe/Lighthouse) yet — manual ARIA-tree inspection done.
-3. Real-world FP/FN rates unmeasured; the fixed 10-case harness guards regressions, not accuracy.
-4. Screenshot/image analysis (OCR) not implemented — documented limitation.
+1. Automated accessibility audit (axe/Lighthouse) not yet wired — manual ARIA-tree inspection + keyboard walkthrough done.
+2. Real-world FP/FN rates unmeasured; the synthetic per-language harness guards regressions, not field accuracy.
+3. Screenshot/image OCR not implemented (validated-and-discarded upload endpoint ships instead) — documented limitation.
+4. Docker Engine unavailable in this environment — Compose end-to-end pending a Docker-capable machine.

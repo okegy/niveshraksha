@@ -247,3 +247,17 @@ def test_detected_language_in_response():
     for text, expected in cases.items():
         r = client.post("/api/v1/analyze/message", json={"content": text})
         assert r.json()["detected_language"] == expected, text
+
+
+# --- Redaction preview -------------------------------------------------------------
+
+def test_redaction_preview_mirrors_storage_pipeline():
+    r = client.post("/api/v1/reports/preview", json={
+        "content": "call 9876543210, pan ABCDE1234F, mail a@b.com, upi scam@ybl"
+    })
+    data = r.json()
+    assert "[PHONE REDACTED]" in data["redacted_content"]
+    assert "[PAN REDACTED]" in data["redacted_content"]
+    assert "[EMAIL REDACTED]" in data["redacted_content"]
+    assert "[UPI ID REDACTED]" in data["redacted_content"]
+    assert "Nothing is saved" in data["note"]

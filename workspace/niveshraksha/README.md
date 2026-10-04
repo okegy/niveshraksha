@@ -4,6 +4,10 @@ NiveshRaksha is a privacy-first investor **safety** tool built for the Sangyan I
 
 > **NiveshRaksha is not investment advice.** It never recommends buying or selling, never predicts prices or returns, and never claims a person or platform is "definitely safe". A clean result is not a guarantee — it only means no known red-flag pattern matched.
 
+![High-risk analysis result](../docs/images/analyze-high-risk.png)
+
+*A high-risk scam message checked live: full-width risk banner, five explainable flags with exact matched text highlighted, the assistive classifier panel (clearly labelled as assistance-only), and honest "what we could not verify" — all in under a second.*
+
 ---
 
 ## What it does

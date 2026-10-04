@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from ..models import IncidentDraftRequest, IncidentDraftResponse
 from ..security.ratelimit import client_key, limiter
@@ -37,6 +38,31 @@ REPORTING_ROUTES = [
         "use": "Grievance against a SEBI-registered entity",
     },
 ]
+
+
+class PreviewRequest(BaseModel):
+    content: str = Field(min_length=1, max_length=10000)
+
+
+class PreviewResponse(BaseModel):
+    redacted_content: str
+    note: str
+
+
+@router.post("/preview", response_model=PreviewResponse)
+async def redaction_preview(payload: PreviewRequest, http_request: Request):
+    """Live redaction preview: applies the exact storage redaction pipeline to
+    the given text and returns it. Nothing is stored, logged, or kept — the
+    request body is dropped when the response is sent. This powers the
+    report page's privacy demo without duplicating patterns client-side."""
+    limiter.check(client_key(http_request))
+    return PreviewResponse(
+        redacted_content=redact_text(payload.content),
+        note=(
+            "Live preview of the same pipeline applied before any storage. "
+            "Nothing is saved from this request."
+        ),
+    )
 
 
 @router.post("/draft", response_model=IncidentDraftResponse)

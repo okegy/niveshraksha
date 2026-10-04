@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AlertTriangle, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +20,8 @@ const EXAMPLE_URL = "http://sebi.kyc-update.xyz/verify-account";
 
 export default function AnalyzePage() {
   const { language } = useLanguage();
+  const [activeTab, setActiveTab] = useState("text");
+  const resultRef = useRef<HTMLDivElement>(null);
   const [message, setMessage] = useState("");
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +59,9 @@ export default function AnalyzePage() {
           ? await api.analyzeMessage(message, language)
           : await api.analyzeUrl(url, language);
       setResult(data);
+      if (window.innerWidth < 1024) {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Analysis failed unexpectedly. Please try again.");
     } finally {
@@ -82,7 +87,7 @@ export default function AnalyzePage() {
               <CardDescription>We respect your privacy. Nothing is required from you except the text you choose to check — and identifiers like phone numbers or PAN get redacted before anything is stored.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="text" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-4">
                   <TabsTrigger value="text" className="min-h-[40px]">Message</TabsTrigger>
                   <TabsTrigger value="url" className="min-h-[40px]">URL</TabsTrigger>
@@ -146,6 +151,9 @@ export default function AnalyzePage() {
                   >
                     <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
                       Choose a screenshot (PNG or JPEG, up to 5 MB)
+                      <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide align-middle">
+                        OCR coming soon
+                      </span>
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-sm">
                       The image is validated and discarded immediately — never stored. Text inside the
@@ -189,27 +197,41 @@ export default function AnalyzePage() {
               </Alert>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-              <Button
-                onClick={() => runAnalysis("message")}
-                disabled={!message.trim() || isLoading}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white min-h-[48px]"
-              >
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
-                Analyze Message
-              </Button>
-              <Button
-                onClick={() => runAnalysis("url")}
-                disabled={!url.trim() || isLoading}
-                variant="outline"
-                className="w-full min-h-[48px] border-teal-600 text-teal-700 hover:bg-teal-50 dark:text-teal-400"
-              >
-                Check URL
-              </Button>
+              {activeTab === "text" && (
+                <>
+                  <Button
+                    onClick={() => runAnalysis("message")}
+                    disabled={!message.trim() || isLoading}
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white min-h-[48px]"
+                  >
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
+                    Analyze Message
+                  </Button>
+                  <p className="text-xs text-slate-400 w-full text-right" aria-live="polite">
+                    {message.length}/10000
+                  </p>
+                </>
+              )}
+              {activeTab === "url" && (
+                <Button
+                  onClick={() => runAnalysis("url")}
+                  disabled={!url.trim() || isLoading}
+                  variant="outline"
+                  className="w-full min-h-[48px] border-teal-600 text-teal-700 hover:bg-teal-50 dark:text-teal-400"
+                >
+                  Check URL
+                </Button>
+              )}
+              {activeTab === "shot" && (
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Pick a file above to run the validation check.
+                </p>
+              )}
             </CardFooter>
           </Card>
 
           {/* Results Section */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4" ref={resultRef}>
             {!result && !isLoading && !error && (
               <Card className="h-full flex flex-col items-center justify-center text-center p-8 bg-slate-50/50 dark:bg-slate-900/50 border-dashed">
                 <ShieldCheck className="h-12 w-12 text-slate-300 mb-4" aria-hidden />
