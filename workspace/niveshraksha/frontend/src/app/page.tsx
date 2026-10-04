@@ -1,179 +1,382 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
-  FileLock2,
-  Hand,
+  Cpu,
+  FileSearch,
   Lock,
-  MessageSquareWarning,
   Search,
   ShieldCheck,
-  Sparkles,
-  UserCheck,
+  X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/lib/i18n";
+import MatrixRain from "@/components/ui/matrix-code";
+import { GlowingShadow } from "@/components/ui/glowing-shadow";
+import { ScamReportCard } from "@/components/ui/scam-card";
+import { ApiError, api } from "@/lib/api";
+import type { RedFlag } from "@/lib/api";
 
-const HOW_IT_WORKS = [
-  { icon: MessageSquareWarning, title: "1. Check", body: "Paste a suspicious message or link. Deterministic rules flag the warning signs with exact evidence.", href: "/analyze" },
-  { icon: UserCheck, title: "2. Verify", body: "Check the advisor's SEBI registration against records — with honest uncertainty, never verdicts.", href: "/verify" },
-  { icon: Hand, title: "3. Pause", body: "Feeling pressured? A 30-second checklist breaks the urgency before money moves.", href: "/pause" },
-  { icon: FileLock2, title: "4. Report", body: "Prepare a redacted evidence draft and file it on official portals — nothing is sent for you.", href: "/report" },
-];
-
-const MOCK_SCAM = "SEBI-approved premium group! Guaranteed 40% monthly return. Only 2 slots left — pay today to unlock the IPO allocation. Send PAN and UPI screenshot with the OTP.";
-const HIGHLIGHTS = [
-  { text: "SEBI-approved", label: "impersonation" },
-  { text: "Guaranteed 40% monthly return", label: "guaranteed returns" },
-  { text: "Only 2 slots left", label: "urgency" },
-  { text: "unlock the IPO allocation", label: "advance-fee" },
-  { text: "Send PAN and UPI screenshot", label: "document request" },
-];
-
-function MockScamMessage() {
-  // Renders the synthetic demo message with the exact spans the rules flag,
-  // highlighted — the same evidence the analyzer returns, previewed on the hero.
-  let parts: { text: string; label?: string }[] = [{ text: MOCK_SCAM }];
-  for (const h of HIGHLIGHTS) {
-    parts = parts.flatMap((p) => {
-      if (p.label || !p.text.includes(h.text)) return [p];
-      const [before, after] = p.text.split(h.text);
-      return [
-        ...(before ? [{ text: before }] : []),
-        { text: h.text, label: h.label },
-        ...(after ? [{ text: after }] : []),
-      ];
-    });
-  }
-  return (
-    <div className="glass-card p-5 text-left max-w-md w-full" aria-label="Example of a flagged scam message (synthetic)">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700" aria-hidden />
-        <div>
-          <p className="text-sm font-medium text-slate-900 dark:text-slate-100">+91 ••••• 43210</p>
-          <p className="text-[11px] text-slate-500">Telegram · synthetic example</p>
-        </div>
-      </div>
-      <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-200">
-        {parts.map((p, i) =>
-          p.label ? (
-            <mark key={i} className="bg-amber-200/80 dark:bg-amber-500/30 text-slate-900 dark:text-amber-200 rounded px-1 py-0.5 mr-1" title={`Flagged: ${p.label}`}>
-              {p.text}
-              <span className="ml-1 text-[10px] font-semibold text-amber-700 dark:text-amber-400">⚠ {p.label}</span>
-            </mark>
-          ) : (
-            <span key={i}>{p.text}</span>
-          ),
-        )}
-      </p>
-      <div className="mt-4 flex items-center gap-2 text-xs text-teal-700 dark:text-teal-400 font-medium">
-        <Sparkles className="h-4 w-4" aria-hidden />
-        This is what the analyzer flags — in milliseconds, in 12 languages.
-      </div>
-    </div>
-  );
+interface QueryResult {
+  query_type: string;
+  risk_level: string;
+  red_flags: RedFlag[];
+  guidance: string[];
 }
 
-export default function Home() {
-  const { t } = useLanguage();
+interface FeedEntry {
+  target: string;
+  category: string;
+  risk_score: number;
+  reported_at: string;
+  source: string;
+}
+
+const RISK_TONE: Record<string, { label: string; text: string; border: string }> = {
+  high: { label: "CRITICAL", text: "text-red-400", border: "border-red-500/40" },
+  review_carefully: { label: "SUSPICIOUS", text: "text-amber-400", border: "border-amber-500/40" },
+  no_obvious_red_flags: { label: "NO OBVIOUS FLAGS", text: "text-emerald-400", border: "border-emerald-500/40" },
+};
+
+const EXAMPLES: Record<string, string> = {
+  phishing: "http://sebi.kyc-update.xyz/verify-account",
+  crypto: "0x71C7656EC7ab88b098defB751B7401B5f6d89739",
+  identity: "support-ticket-update@mail-security-check.com",
+};
+
+export default function SentinelPortal() {
+  const [query, setQuery] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [result, setResult] = useState<QueryResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [feed, setFeed] = useState<FeedEntry[]>([]);
+  const [stats, setStats] = useState<{ scams_flagged_today: number; addresses_audited: number; community_reports_this_session: number } | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [reportForm, setReportForm] = useState({ target: "", details: "", category: "Phishing" });
+  const [reportResult, setReportResult] = useState<{ risk_score: number; risk_level: string; note: string } | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const refreshFeed = useCallback(() => {
+    api.threatFeed().then((d) => setFeed(d.entries)).catch(() => {});
+    api.threatStats().then(setStats).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    refreshFeed();
+    const id = setInterval(refreshFeed, 30_000);
+    return () => clearInterval(id);
+  }, [refreshFeed]);
+
+  const runScan = useCallback(
+    async (q: string) => {
+      const text = q.trim();
+      if (!text || scanning) return;
+      setScanning(true);
+      setError(null);
+      setResult(null);
+      try {
+        const res = await api.analyzeQuery(text);
+        setResult(res);
+        requestAnimationFrame(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      } catch (e) {
+        setError(e instanceof ApiError ? e.message : "Scan failed. Please try again.");
+      } finally {
+        setScanning(false);
+      }
+    },
+    [scanning],
+  );
+
+  const submitReport = async () => {
+    setError(null);
+    setReportResult(null);
+    try {
+      const res = await api.submitThreatReport(reportForm);
+      setReportResult(res);
+      refreshFeed();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Submission failed. Please try again.");
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center p-4 sm:p-6">
-      {/* Hero */}
-      <section className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-10 py-10">
-        <div className="flex-1 text-center lg:text-left">
-          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 mb-4">
-            {t("landing_title")}
-          </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-xl mx-auto lg:mx-0">
-            {t("landing_sub")}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <Link href="/analyze">
-              <Button className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white min-h-[48px] px-6 text-base">
-                <Search className="mr-2 h-4 w-4" aria-hidden /> {t("analyze_now")}
-              </Button>
-            </Link>
-            <Link href="/verify">
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto min-h-[48px] px-6 text-base border-teal-600 text-teal-700 hover:bg-teal-50 dark:text-teal-400"
-              >
-                <ShieldCheck className="mr-2 h-4 w-4" aria-hidden /> {t("verify_now")}
-              </Button>
-            </Link>
+    <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+      <MatrixRain fontSize={16} color="#00ff66" fadeOpacity={0.07} speed={1.2} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        {/* Portal header: ticker + stats + Report CTA (app-wide nav stays above) */}
+        <header className="flex flex-wrap justify-between items-center gap-3 mb-12 border-b border-emerald-900/40 pb-5 backdrop-blur-md bg-black/40 px-6 rounded-2xl">
+          <div className="flex items-center gap-3">
+            <Cpu className="text-emerald-400 animate-pulse" size={28} aria-hidden />
+            <span className="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-500 to-green-600">
+              SENTINEL-X
+            </span>
+            <span className="hidden md:inline text-[10px] font-mono text-emerald-600 border border-emerald-900 rounded px-1.5 py-0.5">
+              powered by NiveshRaksha engine
+            </span>
           </div>
-          {/* Trust signals bar */}
-          <div className="mt-8 flex flex-wrap gap-2 justify-center lg:justify-start text-xs">
-            {[
-              { icon: ShieldCheck, label: "Sangyan Hackathon project" },
-              { icon: Lock, label: "No investment advice, ever" },
-              { icon: UserCheck, label: "No account needed" },
-              { icon: FileLock2, label: "Nothing stored without consent" },
-            ].map(({ icon: Icon, label }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-              >
-                <Icon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" aria-hidden />
-                {label}
+
+          {/* Threat feed ticker */}
+          <div className="hidden lg:flex items-center gap-2 min-w-0 flex-1 mx-6 overflow-hidden" aria-hidden>
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+            <div className="relative whitespace-nowrap overflow-hidden max-w-xs font-mono text-xs text-emerald-500/80">
+              {feed[0] ? `⚑ ${feed[0].target.slice(0, 48)} · score ${feed[0].risk_score}` : "LIVE FEED ACTIVE"}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 font-mono text-xs text-slate-400">
+            {stats && (
+              <span className="hidden sm:inline">
+                <span className="text-emerald-400 font-bold">{stats.scams_flagged_today.toLocaleString()}</span> Scams Flagged Today
               </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="px-4 py-2 rounded-lg bg-emerald-950 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50 transition min-h-[40px]"
+            >
+              Report Fraud
+            </button>
+          </div>
+        </header>
+
+        {/* Hero & central search */}
+        <section className="text-center my-16 max-w-3xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-600">
+            VERIFY SCAMS &amp; PHISHING THREATS
+          </h1>
+          <p className="text-slate-400 font-mono text-sm mb-2">
+            Paste URL, Crypto Address, Phone Number, or Telegram Handle — analyzed by the
+            deterministic NiveshRaksha engine. No AI verdicts, no false certainty.
+          </p>
+          <p className="text-emerald-600 font-mono text-xs mb-8">Pause. Verify. Protect.</p>
+
+          <div className="relative mb-6">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-emerald-400">
+              <Search size={22} aria-hidden />
+            </div>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") runScan(query);
+              }}
+              placeholder="Paste link, wallet address, email, phone or domain..."
+              aria-label="Query to verify"
+              className="w-full pl-12 pr-32 py-4 rounded-xl bg-black/80 border-2 border-emerald-500/40 text-slate-100 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-emerald-400 transition shadow-[0_0_20px_rgba(0,255,102,0.15)]"
+            />
+            <button
+              type="button"
+              onClick={() => runScan(query)}
+              disabled={scanning || !query.trim()}
+              className="absolute right-2 top-2 bottom-2 px-6 bg-emerald-500 text-black font-mono font-bold rounded-lg hover:bg-emerald-400 transition disabled:opacity-40 min-h-[40px]"
+            >
+              {scanning ? "..." : "SCAN"}
+            </button>
+          </div>
+          {error && (
+            <p role="alert" className="font-mono text-xs text-red-400 mb-4">
+              {error}
+            </p>
+          )}
+        </section>
+
+        {/* Scan result panel */}
+        {result && (
+          <section ref={resultRef} aria-live="polite" className="mb-16">
+            <div className={`backdrop-blur-md bg-black/60 border-2 ${RISK_TONE[result.risk_level]?.border ?? "border-emerald-500/20"} rounded-xl p-6`}>
+              <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+                <span className={`font-mono text-sm font-bold px-3 py-1 rounded border ${RISK_TONE[result.risk_level]?.border} ${RISK_TONE[result.risk_level]?.text}`}>
+                  {RISK_TONE[result.risk_level]?.label ?? result.risk_level}
+                </span>
+                <span className="font-mono text-xs text-slate-400 uppercase">
+                  type: {result.query_type} · {result.red_flags.length} indicator(s)
+                </span>
+              </div>
+              {result.red_flags.length > 0 ? (
+                <ul className="space-y-3 mb-4">
+                  {result.red_flags.map((f, i) => (
+                    <li key={i} className="border border-slate-800 rounded-lg p-3 bg-black/40">
+                      <p className="font-mono text-sm text-slate-200">
+                        <span className={f.severity === "high" ? "text-red-400" : "text-amber-400"}>⚠ {f.label}</span>
+                        {f.matched_text && <span className="block text-xs text-slate-500 mt-1">matched: &quot;{f.matched_text}&quot;</span>}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">{f.explanation}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-mono text-sm text-emerald-400 mb-4">
+                  No known red-flag pattern matched — that is NOT proof of safety.
+                </p>
+              )}
+              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-400">
+                {result.guidance.map((g, i) => (
+                  <li key={i}>{g}</li>
+                ))}
+              </ul>
+              <Link href="/analyze" className="inline-block mt-4 font-mono text-xs text-emerald-400 underline hover:text-emerald-300">
+                Open the full analyzer (message, URL, screenshot) →
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* Quick verification modules */}
+        <section className="grid md:grid-cols-3 gap-6 mb-16" aria-label="Quick verification modules">
+          <GlowingShadow className="w-full">
+            <button type="button" onClick={() => { setQuery(EXAMPLES.phishing); runScan(EXAMPLES.phishing); }} className="flex flex-col items-center text-center w-full">
+              <FileSearch className="text-emerald-400 mb-3" size={36} aria-hidden />
+              <h3 className="font-mono text-lg font-bold text-white mb-2">Phishing URL Audit</h3>
+              <p className="text-xs text-slate-400">Check fake domains, brand-in-subdomain tricks and phishing-shaped links.</p>
+            </button>
+          </GlowingShadow>
+          <GlowingShadow className="w-full">
+            <button type="button" onClick={() => { setQuery(EXAMPLES.crypto); runScan(EXAMPLES.crypto); }} className="flex flex-col items-center text-center w-full">
+              <Lock className="text-emerald-400 mb-3" size={36} aria-hidden />
+              <h3 className="font-mono text-lg font-bold text-white mb-2">Crypto Address Check</h3>
+              <p className="text-xs text-slate-400">Address-shape validation and drainer-awareness guidance (no on-chain calls in demo).</p>
+            </button>
+          </GlowingShadow>
+          <GlowingShadow className="w-full">
+            <button type="button" onClick={() => { setQuery(EXAMPLES.identity); runScan(EXAMPLES.identity); }} className="flex flex-col items-center text-center w-full">
+              <AlertTriangle className="text-emerald-400 mb-3" size={36} aria-hidden />
+              <h3 className="font-mono text-lg font-bold text-white mb-2">Identity / Fake Email Check</h3>
+              <p className="text-xs text-slate-400">Lookalike providers, disposable mail and phishing-shaped domains.</p>
+            </button>
+          </GlowingShadow>
+        </section>
+
+        {/* Live threat stream */}
+        <section className="mb-12" aria-label="Live cyber threat stream">
+          <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+            <h2 className="text-xl font-mono font-bold text-emerald-400 flex items-center gap-2">
+              <ShieldCheck size={22} aria-hidden /> LATEST THREAT VERIFICATIONS
+            </h2>
+            <span className="text-xs font-mono text-slate-400">Real-time sync · synthetic seed + community reports</span>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {feed.map((e, i) => (
+              <ScamReportCard
+                key={`${e.target}-${i}`}
+                target={e.target}
+                category={e.category}
+                riskScore={e.risk_score}
+                reportedAt={e.reported_at}
+              />
             ))}
           </div>
+        </section>
+
+        {/* Disclaimer */}
+        <div className="mb-8 backdrop-blur-md bg-black/60 border border-amber-500/30 rounded-xl p-5 text-left">
+          <h4 className="font-mono text-sm font-bold text-amber-400 mb-2">SAFETY DISCLAIMER</h4>
+          <p className="text-xs text-slate-400 font-mono">
+            SENTINEL-X runs the NiveshRaksha deterministic engine: pattern-level checks only. A
+            clean result is not proof of safety; a flag is not proof of fraud. Not affiliated with
+            SEBI/RBI. No investment advice, ever. Feed counters are demo-scale placeholders.
+          </p>
         </div>
-
-        <div className="flex-1 flex justify-center w-full">
-          <MockScamMessage />
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section aria-label="How it works" className="w-full max-w-5xl py-8">
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-center mb-6">How it works</h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {HOW_IT_WORKS.map(({ icon: Icon, title, body, href }) => (
-            <Link
-              key={title}
-              href={href}
-              className="glass-card p-5 hover:shadow-lg transition-shadow group"
-            >
-              <Icon className="h-7 w-7 text-teal-600 dark:text-teal-400 mb-3 group-hover:scale-110 transition-transform" aria-hidden />
-              <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{title}</h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400">{body}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Secondary actions as proper cards */}
-      <section className="w-full max-w-3xl grid gap-4 sm:grid-cols-3 mt-4">
-        {[
-          { href: "/pause", icon: Hand, title: "Feeling pressured?", body: "Take the 30-second pause" },
-          { href: "/report", icon: FileLock2, title: "Prepare evidence", body: "Build a redacted incident draft" },
-          { href: "/learn", icon: AlertTriangle, title: "Learn warning signs", body: "7 lessons in 12 languages" },
-        ].map(({ href, icon: Icon, title, body }) => (
-          <Link
-            key={href}
-            href={href}
-            className="glass-card p-4 flex items-start gap-3 hover:shadow-lg transition-shadow"
-          >
-            <div className="bg-teal-50 dark:bg-slate-800 rounded-lg p-2">
-              <Icon className="h-5 w-5 text-teal-600 dark:text-teal-400" aria-hidden />
-            </div>
-            <div>
-              <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{title}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{body} →</p>
-            </div>
-          </Link>
-        ))}
-      </section>
-
-      {/* Disclaimer */}
-      <div className="mt-12 mb-6 bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-6 rounded-lg max-w-3xl text-left w-full">
-        <h4 className="font-semibold text-amber-800 dark:text-amber-500 mb-2">{t("disclaimer_title")}</h4>
-        <p className="text-amber-900/80 dark:text-amber-400/80 text-sm">{t("disclaimer_body")}</p>
       </div>
+
+      {/* Fraud submission modal */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Report fraud"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setModalOpen(false);
+          }}
+        >
+          <div className="backdrop-blur-md bg-black/80 border border-green-500/20 rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-mono text-lg font-bold text-emerald-400">REPORT FRAUD</h3>
+              <button type="button" onClick={() => setModalOpen(false)} aria-label="Close report dialog" className="text-slate-400 hover:text-white">
+                <X size={20} aria-hidden />
+              </button>
+            </div>
+            {reportResult ? (
+              <div className="space-y-4">
+                <p className="font-mono text-sm text-emerald-400">
+                  Scored: {reportResult.risk_score}/100 ({reportResult.risk_level})
+                </p>
+                <p className="text-xs text-slate-400">{reportResult.note}</p>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => { setReportResult(null); setModalOpen(false); }} className="px-4 py-2 rounded-lg bg-emerald-500 text-black font-mono text-sm font-bold">
+                    Done
+                  </button>
+                  <Link href="/report" className="px-4 py-2 rounded-lg border border-emerald-500/40 text-emerald-300 font-mono text-sm">
+                    Open Evidence Locker →
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="rep-target" className="font-mono text-xs text-slate-400 block mb-1">
+                    URL / address / handle / phone number *
+                  </label>
+                  <input
+                    id="rep-target"
+                    value={reportForm.target}
+                    onChange={(e) => setReportForm((f) => ({ ...f, target: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-lg bg-black/80 border border-emerald-500/30 text-slate-100 font-mono text-sm focus:outline-none focus:border-emerald-400"
+                    placeholder="https://suspicious-site.xyz"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="rep-category" className="font-mono text-xs text-slate-400 block mb-1">
+                    Category
+                  </label>
+                  <select
+                    id="rep-category"
+                    value={reportForm.category}
+                    onChange={(e) => setReportForm((f) => ({ ...f, category: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-lg bg-black/80 border border-emerald-500/30 text-slate-100 font-mono text-sm focus:outline-none focus:border-emerald-400"
+                  >
+                    {["Phishing", "Crypto Drainer", "Identity Theft", "Fake Store", "Tip Group", "Vishing", "Suspicious"].map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="rep-details" className="font-mono text-xs text-slate-400 block mb-1">
+                    What happened? (scores the report)
+                  </label>
+                  <textarea
+                    id="rep-details"
+                    value={reportForm.details}
+                    onChange={(e) => setReportForm((f) => ({ ...f, details: e.target.value }))}
+                    rows={4}
+                    className="w-full px-3 py-2.5 rounded-lg bg-black/80 border border-emerald-500/30 text-slate-100 font-mono text-sm focus:outline-none focus:border-emerald-400 resize-none"
+                    placeholder="e.g. they promised guaranteed returns and asked for OTP to unlock withdrawal..."
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1 font-mono">
+                    Screenshots: use the Screenshot tab in the full analyzer for OCR-checked uploads.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={submitReport}
+                  disabled={!reportForm.target.trim()}
+                  className="w-full py-3 rounded-lg bg-emerald-500 text-black font-mono font-bold hover:bg-emerald-400 transition disabled:opacity-40 min-h-[48px]"
+                >
+                  SUBMIT REPORT
+                </button>
+                <p className="text-[10px] text-slate-500 font-mono">
+                  Community reports are demo-session data scored by the deterministic engine. For an
+                  official complaint, use the Evidence Locker → cybercrime.gov.in.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

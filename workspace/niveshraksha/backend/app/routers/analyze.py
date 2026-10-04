@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from ..analyzers.language_detect import detect_script_language
 from ..analyzers.scam_rules import ScamAnalyzer
@@ -92,6 +93,10 @@ async def analyze_message(request: AnalysisRequest, http_request: Request):
     return _respond("message", risk_level, flags, analyzer.summary_for(risk_level), request.content)
 
 
+class QueryRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=2000)
+
+
 @router.post("/url", response_model=UrlAnalysisResponse)
 async def analyze_url(request: UrlAnalysisRequest, http_request: Request):
     limiter.check(client_key(http_request))
@@ -107,6 +112,16 @@ async def analyze_url(request: UrlAnalysisRequest, http_request: Request):
         limitations=result["limitations"],
         created_at=result["created_at"],
     )
+
+
+@router.post("/query")
+async def analyze_query_endpoint(http_request: Request, payload: QueryRequest):
+    """SENTINEL-X unified scanner: URL / crypto / email / Telegram / phone /
+    free text — classified and routed to the right deterministic engine."""
+    limiter.check(client_key(http_request))
+    from ..analyzers.query_scanner import analyze_query
+
+    return analyze_query(payload.query)
 
 
 @router.get("/{analysis_id}")

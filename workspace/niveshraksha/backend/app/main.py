@@ -13,7 +13,18 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .routers import analyze, chat, education, languages, report, screenshot, sources, verify, voice
+from .routers import (
+    analyze,
+    chat,
+    education,
+    languages,
+    report,
+    screenshot,
+    sources,
+    threatfeed,
+    verify,
+    voice,
+)
 from .security.logging_setup import configure_logging
 from .storage import init_db
 
@@ -59,6 +70,7 @@ app.include_router(sources.router, prefix="/api/v1/sources", tags=["sources"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(languages.router, prefix="/api/v1/languages", tags=["languages"])
 app.include_router(voice.router, prefix="/api/v1/voice", tags=["voice"])
+app.include_router(threatfeed.router, prefix="/api/v1/threatfeed", tags=["threatfeed"])
 
 
 @app.exception_handler(Exception)

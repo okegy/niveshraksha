@@ -209,6 +209,35 @@ export const api = {
       headers: { "x-session-token": sessionToken },
     }),
 
+  analyzeQuery: (query: string) =>
+    request<{
+      query_type: string;
+      risk_level: RiskLevel;
+      red_flags: RedFlag[];
+      guidance: string[];
+      detected_language?: string;
+      reporting_routes?: ReportingRoute[];
+    }>("/api/v1/analyze/query", {
+      method: "POST",
+      body: JSON.stringify({ query }),
+    }),
+
+  threatFeed: () =>
+    request<{ entries: { target: string; category: string; risk_score: number; reported_at: string; source: string }[]; demo_notice: string }>(
+      "/api/v1/threatfeed/feed",
+    ),
+
+  threatStats: () =>
+    request<{ scams_flagged_today: number; addresses_audited: number; active_threat_feeds: number; community_reports_this_session: number; notice: string }>(
+      "/api/v1/threatfeed/stats",
+    ),
+
+  submitThreatReport: (payload: { target: string; details: string; category: string }) =>
+    request<{ report_id: string; risk_score: number; risk_level: string; red_flags: RedFlag[]; note: string }>(
+      "/api/v1/threatfeed/report",
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
+
   voiceStatus: () =>
     request<{ service: string; available: boolean; reason?: string; tts_model?: string }>("/api/v1/voice/status"),
 

@@ -30,3 +30,22 @@
 "Under the hood: Next.js frontend, FastAPI backend. We prioritize privacy by redacting PII, do NOT store raw messages permanently, and strictly NEVER provide investment advice."
 
 "NiveshRaksha: Pause. Verify. Protect."
+
+
+---
+
+## SENTINEL-X portal demo (v3 build)
+
+The landing page is now the SENTINEL-X cyberpunk portal (matrix rain, glowing cards) powered by the same NiveshRaksha deterministic engine.
+
+**60-second walkthrough:**
+
+1. Land on `/` — matrix rain, LIVE threat feed ticker, "14,209 Scams Flagged Today" (demo counters, honestly labelled), 6 live threat cards.
+2. Click the **Crypto Address Check** card → auto-scans `0x71C7…9739` → SUSPICIOUS + on-chain-unavailable honesty + "never share seed phrase" guidance.
+3. Click **Report Fraud** → submit `http://fake-sbi-kyc-approval.xyz` + details → the engine scores it (e.g. 97/100 CRITICAL) and it appears instantly in the community feed.
+4. Hero scan: paste `support-ticket-update@mail-security-check.com` → phishing-shape flag. Paste a phone number → Chakshu/Sanchar Saathi guidance.
+5. Scroll to **SAFETY DISCLAIMER** — pattern checks only, clean ≠ safe, no SEBI affiliation.
+
+**Screenshot-upload Tip-Group Profiler (new):** `/analyze` → Screenshot tab → upload a screenshot of a tip-group message → local OCR extracts the text (nothing stored) → deterministic flags + risk level returned. Try the synthetic screenshot from `docs/` or any scam-message screenshot.
+
+**Backend endpoints powering it:** `POST /api/v1/analyze/query` (URL/crypto/email/Telegram/phone/text routing), `GET /api/v1/threatfeed/feed|stats`, `POST /api/v1/threatfeed/report` (engine-scored), `POST /api/v1/analyze/screenshot` (OCR-enabled).
