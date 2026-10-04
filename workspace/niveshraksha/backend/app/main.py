@@ -61,10 +61,9 @@ app = FastAPI(
 # CORS: the Next.js dev server and any deployed frontend origin.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    # Demo deployment: allow localhost + private LAN origins (phone testing
+    # on the same Wi-Fi). Production must replace this with exact origins.
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|[a-z0-9-]+\.vercel\.app)(:\d+)?",
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "x-session-token"],
 )
