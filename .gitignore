@@ -34,3 +34,7 @@ build/
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Scanners & tunnel binaries/logs (large, machine-local)
+agent_tools/cloudflared/
+agent_tools/scanners/
