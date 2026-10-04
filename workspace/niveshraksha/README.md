@@ -1,143 +1,84 @@
-# NiveshRaksha — Pause. Verify. Protect.
+# NiveshRaksha
 
-NiveshRaksha is a privacy-first investor **safety** tool built for the Sangyan Investor Resilience Hackathon. It helps Indian investors — especially first-time investors, students, senior citizens, and regional-language users — identify suspicious financial communication, verify claims through official sources, understand their rights, and take safe next steps.
+> Pause. Verify. Protect. — Privacy-first safety platform for retail investors.
 
-> **NiveshRaksha is not investment advice.** It never recommends buying or selling, never predicts prices or returns, and never claims a person or platform is "definitely safe". A clean result is not a guarantee — it only means no known red-flag pattern matched.
+NiveshRaksha is a privacy-first investor safety tool built for the Sangyan Investor Resilience Hackathon. It helps Indian investors — especially first-time investors, students, senior citizens, and regional-language users — identify suspicious financial communication, verify claims through official sources, understand their rights, and take safe next steps.
 
-![High-risk analysis result](../docs/images/analyze-high-risk.png)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-cyan)
 
-*A high-risk scam message checked live: full-width risk banner, five explainable flags with exact matched text highlighted, the assistive classifier panel (clearly labelled as assistance-only), and honest "what we could not verify" — all in under a second.*
+## 🌐 Try it live
 
----
+[https://niveshraksha.vercel.app](https://niveshraksha.vercel.app) *(example demo link)*
 
-## What it does
+## Screenshot Gallery
 
-| Feature | Route | Description |
-|---|---|---|
-| **SENTINEL-X portal** (`/`) | Cyberpunk verification portal: matrix-rain hero scanner that auto-classifies **URL / crypto address / email / Telegram handle / phone / free text**, live threat feed, engine-scored community reports, and a fraud-submission modal. All previous features remain one click away. | Every flag shows **what was detected, why it may be risky, the exact matched text, and safe next steps**. The detected script (ta/hi/te/ml/kn/en) is reported honestly alongside coverage limits. |
-| Suspicious URL Checker | `/analyze` (URL tab) | Static-only link review: missing HTTPS, URL shorteners, raw-IP hosts, punycode/lookalike domains, brand-in-subdomain deception, embedded credentials, high-abuse TLDs. The page is **never** opened or fetched (no SSRF surface by design). |
-| Advisor Verification | `/verify` | Checks a SEBI registration number or name against a **clearly-labelled synthetic demo fixture** (never presented as regulator data). Every result states the source, retrieval time, match quality, and honest uncertainty. |
-| Evidence Locker | `/report` | Private, redacted incident drafts with **explicit consent** before storage, 72-hour auto-expiry, on-demand deletion, and text export. Links to official reporting portals only — nothing is submitted on your behalf. |
-| Education Hub | `/learn` | 7 short modules in **6 languages** (English, Tamil, Hindi, Telugu, Malayalam, Kannada) with device-local progress and an offline fallback lesson. |
-| Behavioural Pause Mode | `/pause` | A 30-second checklist that breaks urgency before money moves. Connects to no brokerage account. |
-| Voice dictation | `/analyze` | Browser speech-to-text in all 6 languages for users who cannot type the message — handled by the browser engine, never by us. |
-| Source Transparency | `/about` + `GET /api/v1/sources/status` | Every source's name, URL, mode (mock/static), and freshness — live. |
+| High-Risk Analysis | Dashboard / Tests |
+| --- | --- |
+| ![Analysis Result](../docs/images/analyze-high-risk.png) | ![Deployed](../docs/images/vercel-deployed.png) |
 
-## Safety boundaries (enforced in code and tests)
+## The Problem
 
-- No buy/sell/hold recommendations, price targets, or return predictions — asserted by automated tests scanning every response.
-- Critical warnings come **only** from deterministic rules; no AI model makes safety decisions.
-- "Not found" in verification is always phrased as *could not verify*, never *fraudulent*.
-- No PII is stored without explicit consent; stored content is redacted first (PAN, Aadhaar, phones, emails, UPI IDs, card-shaped numbers) and auto-deleted after 72 hours.
-- User-supplied message content is untrusted data: prompt-injection text is scored, never obeyed.
-- The API never asks for passwords, OTPs, PINs, card numbers, or remote-access permission.
+First-time Indian retail investors meet scams through WhatsApp forwards, Telegram "tips", fake advisor profiles, and lookalike links. These arrive right at the moment of urgency ("last 2 slots, share OTP"). Regulators have resources, but they are hard to find and use complex jargon.
+
+NiveshRaksha puts a calm, explainable check *inside that moment* — before money moves — and routes the user to official sources and reporting.
+
+## How It Works
+
+A single copy-pasted message kicks off a **deterministic safety loop**:
+
+1. **Your message** arrives at the Next.js API route.
+2. **Redaction Engine** strips out PII (Aadhaar, PAN, phone numbers) before processing.
+3. **Deterministic Rules Engine** scores the text for urgency, fake guarantees, and impersonation.
+4. **Verification Engine** checks the advisor claims against official records.
+5. The final answer is displayed with **Honest Uncertainty** and a **Safe Next Steps** guide.
+
+## Key Features
+
+🛡️ **Deterministic Rules Engine**
+No opaque LLM hallucinations for safety flags. Rules are strictly defined and matched text is highlighted.
+
+🔒 **Privacy by Design**
+All personal data is redacted locally. The evidence locker requires explicit consent and auto-expires in 72 hours. Nothing is ever hoarded.
+
+🛑 **Behavioural Pause**
+A 30-second checklist that breaks the psychology of a scam's false urgency.
+
+🌐 **Multilingual Education**
+6 Indian languages supported (English, Tamil, Hindi, Telugu, Malayalam, Kannada).
+
+🕵️ **Honest Verification**
+"Could not verify" and "No red flags" are explicit states. We never claim a clean link is 100% safe.
 
 ## Architecture
 
 ```
-frontend/   Next.js 16 (TypeScript, Tailwind v4, shadcn/ui-style components, Base UI)
-backend/    FastAPI + Pydantic + SQLAlchemy (SQLite demo db, PostgreSQL-ready schema)
-            ├─ app/analyzers/    deterministic scam + URL rules (the safety engine)
-            ├─ app/security/     redaction, rate limiting, JSON logs with PII scrubbing
-            ├─ app/sources/      official-source registry + labelled demo fixtures
-            ├─ app/routers/      analyze / verify / reports / education / sources
-            └─ app/storage.py    privacy-minimal persistence with retention sweeps
-content/    education modules (en/ ta)
-evaluation/ fixed synthetic evaluation dataset (FP/FN harness runs in CI tests)
+frontend/   Next.js 16 (TypeScript, Tailwind v4, shadcn/ui-style components)
+backend/    FastAPI + Pydantic + SQLAlchemy (SQLite demo db)
+            ├─ app/analyzers/    deterministic scam + URL rules
+            ├─ app/security/     redaction, rate limiting, JSON logs
+            ├─ app/sources/      official-source registry
+            └─ app/storage.py    privacy-minimal persistence
 ```
 
-- `POST /api/v1/analyze/message` · `POST /api/v1/analyze/url` · `GET /api/v1/analyze/{id}`
-- `POST /api/v1/verify/advisor` · `POST /api/v1/verify/entity`
-- `POST /api/v1/reports/draft` · `GET/DELETE /api/v1/reports/draft/{id}` · `GET /api/v1/reports/routes`
-- `GET /api/v1/education/modules?language=en|ta|hi|te|ml|kn` · `GET /api/v1/sources/status`
-- `GET /health` · `GET /ready`
+## Setup & Local Run
 
-Full spec: `../docs/API_SPEC.openapi.json`. Architecture, threat model, and PRD live in the repository-level `docs/` folder.
-
-## Local setup
-
-**Backend** (Python 3.12+):
-
+**Backend:**
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-**Frontend** (Node 20+):
-
+**Frontend:**
 ```bash
 cd frontend
 npm install
-echo 'NEXT_PUBLIC_API_BASE_URL=http://localhost:8000' > .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. The analyze and verify flows talk to the FastAPI backend at port 8000.
+## Security & Ethics
+**NiveshRaksha is not investment advice.** It never recommends buying or selling, never predicts prices or returns, and never claims a person or platform is "definitely safe". A clean result is not a guarantee — it only means no known red-flag pattern matched.
 
-## Docker setup
-
-```bash
-docker compose up --build
-# frontend on http://localhost:3000, backend on http://localhost:8000
-```
-
-## Environment variables
-
-See [.env.example](.env.example). Summary:
-
-| Variable | Where | Default | Purpose |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | frontend | `http://localhost:8000` | Backend origin used by the browser client |
-| `NIVESHRAKSHA_DB_PATH` | backend | `backend/data/niveshraksha.db` | SQLite file location (demo) |
-| `NIVESHRAKSHA_DATABASE_URL` | backend | SQLite URL | Set to a PostgreSQL URL for production-style runs |
-| `NIVESHRAKSHA_RETENTION_HOURS` | backend | `72` | Auto-deletion window for stored analyses/drafts |
-
-No secrets are required for the demo — all external integrations run in mock/static mode. Never commit real `.env` files.
-
-## Tests & quality gates
-
-```bash
-# backend
-cd backend
-python -m pytest -q          # 91 tests: rules, URL checks, privacy, rate limiter, API, 12-language education + script detection, agentic chat, portal scanner, evaluation FP/FN harness
-ruff check .
-mypy app
-
-# frontend
-cd frontend
-npm run lint
-npm run typecheck
-npm run build
-```
-
-The evaluation harness (`backend/tests/test_evaluation.py`) runs the fixed synthetic dataset in `evaluation/synthetic_cases.json` — including a Tamil scam message, a false-positive guard, and a prompt-injection payload — and fails on any false negative or false positive.
-
-## Data retention policy
-
-- Analysis results: stored redacted, auto-deleted after 72 hours (`NIVESHRAKSHA_RETENTION_HOURS`), hard-deleted by retention sweeps.
-- Evidence drafts: stored **only** after an explicit consent checkbox, redacted, 72-hour expiry, real deletion on request.
-- If consent is not given, the draft is returned to the browser and **nothing** is persisted server-side.
-- Education progress lives only in your browser's localStorage.
-- Logs are JSON-structured and scrubbed through the same redaction pipeline.
-
-## Known limitations
-
-- Advisor verification uses a synthetic fixture; live SEBI integration is future work.
-- URL checks are static only — a link with no static red flags can still be dangerous.
-- Analyzer rule coverage is strongest for English and common Tamil phrasing; the four other UI languages (Hindi, Telugu, Malayalam, Kannada) have full education content but analyzer patterns remain EN/TA-heavy.
-- OCR-based screenshot scoring runs locally (RapidOCR) but remains imperfect on stylised/low-quality images; deepfake video/audio detection is out of scope.
-- The rate limiter is in-memory and per-process; multi-worker deployments need a shared store.
-
-## Prohibited use
-
-Do not use NiveshRaksha to: make investment decisions, harass or accuse individuals ("fraudulent!" verdicts are never produced), mass-scan third-party content, or present its outputs as legal, financial, or regulatory advice. Do not claim SEBI/RBI affiliation — there is none.
-
-## License & attribution
-
-MIT — see [LICENSE](LICENSE). The [SEBI_safe_space](https://github.com/frharsh/SEBI_safe_space) repository (MIT) was studied for high-level inspiration on advisor verification; no code was copied verbatim. See [NOTICE.md](NOTICE.md) for full third-party attribution.
-
----
-
-*Designed to maximize hackathon impact while remaining honest, safe, privacy-preserving, and technically demonstrable.*
+## License & Attribution
+MIT — see [LICENSE](LICENSE). See [NOTICE.md](NOTICE.md) for full third-party attribution.
