@@ -32,6 +32,12 @@ NiveshRaksha is an original product built for the Sangyan Investor Resilience Ha
 | Uvicorn | BSD-3-Clause | ASGI server |
 | pytest | MIT | Test framework |
 
+## v2 build additions
+
+- SEBI_safe_space remains the only studied investor-safety repository; all v2 additions (Raksha Guide, ML baseline, lexicons) are original work. Full third-party repo audit table: docs/REUSE_MATRIX.md.
+- scikit-learn (BSD-3-Clause) used for the assistive TF-IDF+LR baseline.
+- The IndicBERT scam-classifier model (anmolshrivastav/indicbert-scam-classifier-v2) is NOT bundled or downloaded in this build; if enabled later, its license and model card must be recorded here first.
+
 ## Data
 
 - All advisors in `backend/app/sources/mock_advisors.json` are **synthetic, fictional records** created for the demo. They do not describe real persons or firms and are not regulator data.
