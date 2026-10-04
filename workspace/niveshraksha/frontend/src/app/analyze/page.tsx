@@ -24,7 +24,28 @@ export default function AnalyzePage() {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [shotResult, setShotResult] = useState<{
+    accepted: boolean;
+    summary: string;
+    safe_next_steps: string[];
+    limitations: string[];
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const handleScreenshot = async (file: File) => {
+    setError(null);
+    setResult(null);
+    setShotResult(null);
+    setIsLoading(true);
+    try {
+      const data = await api.analyzeScreenshot(file);
+      setShotResult(data);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Screenshot check failed unexpectedly. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const runAnalysis = async (kind: "message" | "url") => {
     setError(null);
@@ -62,9 +83,10 @@ export default function AnalyzePage() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="text" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="text" className="min-h-[40px]">Message Text</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="text" className="min-h-[40px]">Message</TabsTrigger>
                   <TabsTrigger value="url" className="min-h-[40px]">URL</TabsTrigger>
+                  <TabsTrigger value="shot" className="min-h-[40px]">Screenshot</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="text">
@@ -115,6 +137,46 @@ export default function AnalyzePage() {
                       The link is checked by static pattern review only. We do not open the page.
                     </p>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="shot">
+                  <label
+                    htmlFor="shot-input"
+                    className="flex flex-col items-center justify-center min-h-[200px] rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 text-center p-6 cursor-pointer hover:border-teal-500"
+                  >
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                      Choose a screenshot (PNG or JPEG, up to 5 MB)
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-sm">
+                      The image is validated and discarded immediately — never stored. Text inside the
+                      image cannot be read yet (OCR is not enabled in this build), so paste the text into
+                      the Message tab for the full check.
+                    </p>
+                    <input
+                      id="shot-input"
+                      type="file"
+                      accept="image/png,image/jpeg"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleScreenshot(f);
+                      }}
+                    />
+                  </label>
+                  {shotResult && (
+                    <Alert className="mt-4 border-teal-600/50 bg-teal-50 dark:bg-teal-950/20" aria-live="polite">
+                      <ShieldCheck className="h-5 w-5 text-teal-600" aria-hidden />
+                      <AlertTitle className="text-sm">Screenshot validated and discarded</AlertTitle>
+                      <AlertDescription className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                        <p>{shotResult.summary}</p>
+                        <ul className="list-disc pl-4 mt-2 space-y-1">
+                          {shotResult.safe_next_steps.map((s, i) => (
+                            <li key={i}>{s}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </TabsContent>
               </Tabs>
 

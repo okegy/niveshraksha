@@ -77,6 +77,25 @@ export interface SourceStatusItem {
   last_checked: string | null;
 }
 
+export interface ChatCitation {
+  document_id: string;
+  source_name: string;
+  source_url: string;
+  retrieved_at: string;
+  freshness: string;
+  title: string;
+}
+
+export interface ChatReply {
+  reply: string;
+  refused: boolean;
+  refusal_kind: string | null;
+  citations: ChatCitation[];
+  uncertainty: string;
+  retrieval: { method: string; score: number | null };
+  latency_ms: number;
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -164,6 +183,25 @@ export const api = {
 
   getSourceStatus: () =>
     request<{ sources: SourceStatusItem[]; policy: string }>("/api/v1/sources/status"),
+
+  chatMessage: (payload: { message: string; language: string }) =>
+    request<ChatReply>("/api/v1/chat/message", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  analyzeScreenshot: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<{
+      accepted: boolean;
+      content_type: string;
+      ocr_available: boolean;
+      summary: string;
+      safe_next_steps: string[];
+      limitations: string[];
+    }>("/api/v1/analyze/screenshot", { method: "POST", body: form, headers: {} });
+  },
 };
 
 // Stable per-browser session id for the evidence locker (no account system,

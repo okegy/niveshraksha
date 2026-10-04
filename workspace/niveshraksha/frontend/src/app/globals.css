@@ -110,3 +110,51 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Glassmorphism layer (master prompt v2) — calm frosted surfaces over a deep
+   navy gradient. Every glass surface has a solid fallback via @supports, and
+   all of it is disabled by the reduce-motion / reduced-transparency preferences.
+--------------------------------------------------------------------------- */
+body {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(13, 148, 136, 0.10), transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, rgba(8, 145, 178, 0.08), transparent 55%),
+    hsl(var(--background));
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0.85rem;
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-card {
+    background: rgb(255 255 255);
+  }
+  .dark .glass-card {
+    background: rgb(15 23 42);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card {
+    background: rgb(255 255 255);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+html.nr-reduced-motion .glass-card,
+html.nr-reduced-motion .glass-card * {
+  transition: none !important;
+}

@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import { useLanguage, type DictKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS: { href: string; key: DictKey }[] = [
+const NAV_ITEMS: { href: string; key: DictKey | string; label?: string }[] = [
   { href: "/analyze", key: "nav_analyze" },
   { href: "/verify", key: "nav_verify" },
+  { href: "/chat", key: "nav_chat", label: "Raksha Guide" },
   { href: "/pause", key: "nav_pause" },
   { href: "/learn", key: "nav_learn" },
   { href: "/report", key: "nav_report" },
@@ -104,7 +105,7 @@ export function SiteHeader() {
                       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
                   )}
                 >
-                  {t(item.key)}
+                  {item.label ?? t(item.key as DictKey)}
                 </Link>
               ))}
             </nav>
@@ -124,6 +125,12 @@ export function SiteHeader() {
               <option value="te">తెలుగు</option>
               <option value="ml">മലയാളം</option>
               <option value="kn">ಕನ್ನಡ</option>
+              <option value="bn">বাংলা</option>
+              <option value="mr">मराठी</option>
+              <option value="gu">ગુજરાતી</option>
+              <option value="or">ଓଡ଼ିଆ</option>
+              <option value="pa">ਪੰਜਾਬੀ</option>
+              <option value="as">অসমীয়া</option>
             </select>
 
             <div className="hidden md:flex items-center rounded-md border border-slate-200 dark:border-slate-700" role="group" aria-label="Accessibility">

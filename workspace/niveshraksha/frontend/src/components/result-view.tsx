@@ -36,6 +36,7 @@ const SEVERITY_CHIP = {
 
 export function ResultView({ result }: { result: AnalysisResult }) {
   const p = RISK_PRESENTATION[result.risk_level];
+  const ml = (result as { ml_metadata?: { model?: string; scam_probability?: number; decision_role?: string; calibrated?: boolean; indicbert?: { status?: string } } }).ml_metadata;
 
   return (
     <div className="space-y-4" aria-live="polite">
@@ -49,6 +50,28 @@ export function ResultView({ result }: { result: AnalysisResult }) {
 
       {result.note && (
         <p className="text-xs text-slate-500 dark:text-slate-400">{result.note}</p>
+      )}
+
+      {ml?.model && ml.model !== "unavailable" && (
+        <Card className="border-slate-200 dark:border-slate-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">How the classifier assist reads this</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+            <p>
+              Assistive model <span className="font-medium">{ml.model}</span> estimates a{" "}
+              {Math.round((ml.scam_probability ?? 0) * 100)}% similarity to known scam patterns.
+            </p>
+            <p>
+              This score is <span className="font-medium">assistance only</span>
+              {ml.calibrated === false && " and is not calibrated against real-world data"} — the risk
+              level above is decided solely by the deterministic rules.
+            </p>
+            {ml.indicbert && (
+              <p>Multilingual IndicBERT classifier: {ml.indicbert.status}.</p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {result.detected_language && result.input_type !== "url" && (
