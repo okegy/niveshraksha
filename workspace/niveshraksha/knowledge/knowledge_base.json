@@ -1,0 +1,84 @@
+{
+  "documents": [
+    {
+      "id": "verify-advisor-101",
+      "category": "official_sources",
+      "title": "How to verify an investment advisor",
+      "source_name": "SEBI Registered Intermediaries Database",
+      "source_url": "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "Anyone who gives investment advice for money in India must be registered with SEBI as an Investment Adviser (INA prefix) or Research Analyst (INH prefix). To verify: 1) Ask the person for their SEBI registration number. 2) Open the SEBI intermediaries database yourself by typing sebi.gov.in into your browser — never use a link they sent. 3) Search their name or registration number. 4) Check the validity date and the registered firm name. If the registration cannot be found, or the name does not match the firm you were told, do not invest and do not share documents. A screenshot of a certificate is not proof — certificates are easily forged. If someone claims SEBI approval for a scheme, app, or guaranteed return, that claim is false: SEBI regulates and registers, it does not approve individual schemes or returns."
+    },
+    {
+      "id": "after-money-sent",
+      "category": "grievance_guidance",
+      "title": "What to do after you have sent money to a scammer",
+      "source_name": "National Cyber Crime Reporting Portal",
+      "source_url": "https://cybercrime.gov.in",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "Act within the golden hour. 1) Call the cybercrime helpline 1930 immediately, or file a complaint on cybercrime.gov.in. Fast reporting can help freeze the fraudster's account before money moves further. 2) Preserve evidence: do not delete chats; screenshot messages, save phone numbers, UPI IDs, account numbers, and links. 3) Inform your bank and ask for a fraud transaction dispute. 4) File a police complaint if advised. 5) Do not pay any 'recovery agent' who contacts you promising to return your money for a fee — that is a second scam targeting victims."
+    },
+    {
+      "id": "otp-upi-pin-basics",
+      "category": "digital_payment_safety",
+      "title": "What OTP and UPI PIN mean — and who may ask for them",
+      "source_name": "RBI Public Awareness",
+      "source_url": "https://www.rbi.org.in",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "An OTP (One-Time Password) authorises a transaction that is happening right now. Nobody legitimate ever needs your OTP — not your bank, not a delivery agent, not a government official. A UPI PIN authorises money LEAVING your account; entering a UPI PIN can never be required to RECEIVE money. A common fraud: someone asks you to 'enter a PIN to receive a refund' — that PIN actually sends your money to them. If a caller asks for an OTP, PIN, password, or asks you to install screen-sharing apps like AnyDesk, end the call and contact your bank using the number printed on its official website."
+    },
+    {
+      "id": "evidence-preservation",
+      "category": "grievance_guidance",
+      "title": "How to preserve evidence of a scam",
+      "source_name": "National Cyber Crime Reporting Portal",
+      "source_url": "https://cybercrime.gov.in",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "Good evidence makes complaints actionable. Save: 1) Full chat screenshots including phone numbers and profile photos. 2) The exact links, UPI IDs, bank account numbers, and amounts mentioned. 3) Dates and times of payments and messages. 4) Transaction reference numbers (UTR). Do not confront the scammer or delete the chat — fraudsters block victims once evidence is gone. NiveshRaksha's Evidence Locker can prepare a redacted draft you can paste into official complaint forms."
+    },
+    {
+      "id": "warning-signs-catalog",
+      "category": "scam_warning_signs",
+      "title": "Common investment-scam warning signs",
+      "source_name": "SEBI Investor Education",
+      "source_url": "https://investor.sebi.gov.in",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "Warning signs seen again and again in fraud: guaranteed or very high returns (no genuine investment guarantees returns); urgency and limited slots; unsolicited tips on WhatsApp or Telegram; requests to pay into personal accounts or wallets; claims that a regulator approved a scheme or app (regulators do not do that); demands for advance fees to unlock withdrawals, releases, or IPO allotments; threats of account freezing or KYC suspension; requests for OTPs, UPI PINs, passwords, or screen-sharing apps; profit screenshots as proof; 'recovery agents' asking for fees to return lost money. Any one sign justifies stopping and verifying through official sources; several together mean do not proceed."
+    },
+    {
+      "id": "grievance-against-registered",
+      "category": "investor_rights",
+      "title": "Where to complain against a SEBI-registered entity",
+      "source_name": "SEBI SCORES",
+      "source_url": "https://scores.sebi.gov.in",
+      "retrieved_at": "2026-10-04",
+      "freshness": "static_reference",
+      "body": "If you have a grievance against a SEBI-registered intermediary — a broker, investment adviser, or research analyst — file a complaint on SEBI SCORES (scores.sebi.gov.in). You can track the complaint until resolution. Against unregistered fraudsters, file a cybercrime complaint at cybercrime.gov.in or call 1930. You have the right to ask any advisor for their registration number and to verify it on the SEBI website before engaging them."
+    },
+    {
+      "id": "refusal-investment-advice",
+      "category": "source_metadata",
+      "title": "Scope: what this assistant will not do",
+      "source_name": "NiveshRaksha Safety Policy",
+      "source_url": "https://github.com/niveshraksha (demo)",
+      "retrieved_at": "2026-10-04",
+      "freshness": "policy",
+      "body": "This assistant never recommends buying, selling, or holding any security; never predicts prices or returns; never ranks investments; never gives personalised portfolio or tax advice; and never confirms that a person, platform, or message is genuine. It explains warning signs, verification steps, evidence handling, and official grievance channels, and always directs users to official sources for decisions."
+    },
+    {
+      "id": "multilingual-lesson-index",
+      "category": "multilingual_education",
+      "title": "Education modules available in your language",
+      "source_name": "NiveshRaksha Education Hub",
+      "source_url": "http://localhost:3000/learn",
+      "retrieved_at": "2026-10-04",
+      "freshness": "product_feature",
+      "body": "The Education Hub offers seven short lessons — scam warning signs, advisor verification, safe digital payments, investor rights, complaint preparation, nomination awareness, and spotting misinformation — in English, Tamil, Hindi, Telugu, Malayalam, Kannada, Bengali, Marathi, Gujarati, Odia, Punjabi, and Assamese, with an offline fallback and per-device progress."
+    }
+  ]
+}
