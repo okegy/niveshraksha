@@ -1,5 +1,6 @@
 fastapi[all]
-starlette>=0.37.2,<0.39  # pinned: newer starlette breaks fastapi 0.115's Router kwargs
+starlette>=0.37.2,<0.39
+anyio==4.4.0  # pinned: mixed 3.x/4.x files after semgrep install broke lazy imports  # pinned: newer starlette breaks fastapi 0.115's Router kwargs
 pydantic
 SQLAlchemy
 psycopg2-binary
