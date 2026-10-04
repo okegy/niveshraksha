@@ -1,0 +1,36 @@
+# Dependencies & builds
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Local data — never commit databases or user content
+data/
+*.db
+*.sqlite3
+
+# Secrets
+.env
+.env.local
+.env*.local
+
+# Third-party source repos (audited, not redistributed)
+agent_tools/source_repositories/
+
+# Uploads / artifacts
+uploads/
+dist/
+build/
+
+# OS noise
+.DS_Store
+Thumbs.db
