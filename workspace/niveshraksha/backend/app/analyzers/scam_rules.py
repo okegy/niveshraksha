@@ -85,7 +85,7 @@ RULES = [
 
 # Thai/Tamil plain-text scam phrases and common English scam phrases that the
 # structured patterns above can miss.
-EXTRA_PHRASES = [
+EXTRA_PHRASES: list[dict[str, str | list[str]]] = [
     {
         "code": "URGENCY_PRESSURE",
         "phrases": ["இன்றே செய்யுங்கள்", "நாளைக்கு முடிந்துவிடும்"],
@@ -106,13 +106,15 @@ class ScamAnalyzer:
 
     def analyze_text(self, text: str) -> list[RedFlag]:
         flags: list[RedFlag] = []
-        seen_spans = set()
+        seen_spans: set[tuple[int, int]] = set()
+        spans_by_code: dict[str, list[tuple[int, int]]] = {}
         for rule, compiled in _COMPILED:
             for match in compiled.finditer(text):
                 span = match.span()
                 if span in seen_spans:
                     continue
                 seen_spans.add(span)
+                spans_by_code.setdefault(rule["code"], []).append(span)
                 flags.append(
                     RedFlag(
                         code=rule["code"],
@@ -125,18 +127,31 @@ class ScamAnalyzer:
         for extra in EXTRA_PHRASES:
             for phrase in extra["phrases"]:
                 idx = text.find(phrase)
-                if idx != -1 and (idx, idx + len(phrase)) not in seen_spans:
-                    seen_spans.add((idx, idx + len(phrase)))
-                    base = next(r for r in RULES if r["code"] == extra["code"])
-                    flags.append(
-                        RedFlag(
-                            code=base["code"],
-                            label=base["label"],
-                            explanation=base["explanation"],
-                            matched_text=phrase,
-                            severity=base["severity"],
-                        )
+                if idx == -1:
+                    continue
+                span = (idx, idx + len(phrase))
+                if span in seen_spans:
+                    continue
+                # Skip if a structured rule already flagged this code on an
+                # overlapping span — one hit should yield one flag.
+                code = extra["code"]
+                assert isinstance(code, str)
+                if any(
+                    not (span[1] <= s[0] or span[0] >= s[1])
+                    for s in spans_by_code.get(code, [])
+                ):
+                    continue
+                seen_spans.add(span)
+                base = next(r for r in RULES if r["code"] == extra["code"])
+                flags.append(
+                    RedFlag(
+                        code=base["code"],
+                        label=base["label"],
+                        explanation=base["explanation"],
+                        matched_text=phrase,
+                        severity=base["severity"],
                     )
+                )
         return flags
 
     @staticmethod

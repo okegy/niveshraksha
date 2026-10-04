@@ -33,6 +33,7 @@ export interface AnalysisResult {
   created_at: string;
   input_type?: "message" | "url";
   note?: string;
+  detected_language?: string;
 }
 
 export interface VerificationResult {

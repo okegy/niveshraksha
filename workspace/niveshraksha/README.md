@@ -10,12 +10,13 @@ NiveshRaksha is a privacy-first investor **safety** tool built for the Sangyan I
 
 | Feature | Route | Description |
 |---|---|---|
-| Scam Message Analyzer | `/analyze` | Deterministic red-flag rules over pasted messages (English & Tamil): guaranteed returns, urgency pressure, OTP/UPI-PIN requests, impersonation, personal-account payments, and more. Every flag shows **what was detected, why it may be risky, the exact matched text, and safe next steps**. |
+| Scam Message Analyzer | `/analyze` | Deterministic red-flag rules over pasted messages (English & Tamil): guaranteed returns, urgency pressure, OTP/UPI-PIN requests, impersonation, personal-account payments, and more. Every flag shows **what was detected, why it may be risky, the exact matched text, and safe next steps**. The detected script (ta/hi/te/ml/kn/en) is reported honestly alongside coverage limits. |
 | Suspicious URL Checker | `/analyze` (URL tab) | Static-only link review: missing HTTPS, URL shorteners, raw-IP hosts, punycode/lookalike domains, brand-in-subdomain deception, embedded credentials, high-abuse TLDs. The page is **never** opened or fetched (no SSRF surface by design). |
 | Advisor Verification | `/verify` | Checks a SEBI registration number or name against a **clearly-labelled synthetic demo fixture** (never presented as regulator data). Every result states the source, retrieval time, match quality, and honest uncertainty. |
 | Evidence Locker | `/report` | Private, redacted incident drafts with **explicit consent** before storage, 72-hour auto-expiry, on-demand deletion, and text export. Links to official reporting portals only — nothing is submitted on your behalf. |
 | Education Hub | `/learn` | 7 short modules in **6 languages** (English, Tamil, Hindi, Telugu, Malayalam, Kannada) with device-local progress and an offline fallback lesson. |
 | Behavioural Pause Mode | `/pause` | A 30-second checklist that breaks urgency before money moves. Connects to no brokerage account. |
+| Voice dictation | `/analyze` | Browser speech-to-text in all 6 languages for users who cannot type the message — handled by the browser engine, never by us. |
 | Source Transparency | `/about` + `GET /api/v1/sources/status` | Every source's name, URL, mode (mock/static), and freshness — live. |
 
 ## Safety boundaries (enforced in code and tests)
@@ -96,7 +97,7 @@ No secrets are required for the demo — all external integrations run in mock/s
 ```bash
 # backend
 cd backend
-python -m pytest -q          # 66 tests: rules, URL checks, privacy, API, 6-language education, evaluation FP/FN harness
+python -m pytest -q          # 70 tests: rules, URL checks, privacy, rate limiter, API, 6-language education + script detection, evaluation FP/FN harness
 ruff check .
 mypy app
 

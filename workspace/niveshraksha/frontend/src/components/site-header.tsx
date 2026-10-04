@@ -24,17 +24,30 @@ type A11yPrefs = { largeText: boolean; reducedMotion: boolean };
 const A11Y_KEY = "nr_a11y";
 const a11yListeners = new Set<() => void>();
 
+// useSyncExternalStore requires a stable snapshot: returning a fresh object
+// per call triggers an infinite re-render loop in the browser.
+let cachedA11y: A11yPrefs = { largeText: false, reducedMotion: false };
+
 function readA11y(): A11yPrefs {
   try {
     const raw = window.localStorage.getItem(A11Y_KEY);
-    if (raw) return { largeText: false, reducedMotion: false, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = { largeText: false, reducedMotion: false, ...JSON.parse(raw) };
+      if (
+        parsed.largeText !== cachedA11y.largeText ||
+        parsed.reducedMotion !== cachedA11y.reducedMotion
+      ) {
+        cachedA11y = parsed;
+      }
+    }
   } catch {
-    /* malformed — fall through to defaults */
+    /* malformed — keep current cache */
   }
-  return { largeText: false, reducedMotion: false };
+  return cachedA11y;
 }
 
 function writeA11y(prefs: A11yPrefs) {
+  cachedA11y = prefs;
   window.localStorage.setItem(A11Y_KEY, JSON.stringify(prefs));
   a11yListeners.forEach((notify) => notify());
 }
@@ -44,12 +57,10 @@ function subscribeA11y(listener: () => void) {
   return () => a11yListeners.delete(listener);
 }
 
+const SERVER_A11Y: A11yPrefs = { largeText: false, reducedMotion: false };
+
 function useA11y() {
-  return useSyncExternalStore(
-    subscribeA11y,
-    readA11y,
-    () => ({ largeText: false, reducedMotion: false }) as A11yPrefs,
-  );
+  return useSyncExternalStore(subscribeA11y, readA11y, () => SERVER_A11Y);
 }
 
 export function SiteHeader() {

@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
+from ..analyzers.language_detect import detect_script_language
 from ..analyzers.scam_rules import ScamAnalyzer
 from ..analyzers.url_rules import UrlAnalyzer
 from ..models import (
@@ -39,7 +40,12 @@ LIMITATIONS = [
 
 
 def _respond(
-    input_type: str, risk_level: RiskLevel, flags: list, summary: str, verified: list | None = None
+    input_type: str,
+    risk_level: RiskLevel,
+    flags: list,
+    summary: str,
+    content: str,
+    verified: list | None = None,
 ) -> dict:
     """Build the response, persist a redacted snapshot, and keep the
     analysis_id stable so the frontend can deep-link to /result/[id]."""
@@ -55,6 +61,7 @@ def _respond(
         ],
         "limitations": LIMITATIONS,
         "created_at": datetime.now(UTC),
+        "detected_language": detect_script_language(content),
     }
     # Persist the result with user content already redacted.
     redacted_snapshot = dict(result)
@@ -76,7 +83,7 @@ async def analyze_message(request: AnalysisRequest, http_request: Request):
     limiter.check(client_key(http_request))
     flags = analyzer.analyze_text(request.content)
     risk_level = analyzer.risk_tier(flags)
-    return _respond("message", risk_level, flags, analyzer.summary_for(risk_level))
+    return _respond("message", risk_level, flags, analyzer.summary_for(risk_level), request.content)
 
 
 @router.post("/url", response_model=UrlAnalysisResponse)
@@ -84,7 +91,7 @@ async def analyze_url(request: UrlAnalysisRequest, http_request: Request):
     limiter.check(client_key(http_request))
     flags = url_analyzer.analyze_url(request.url)
     risk_level = url_analyzer.risk_tier(flags)
-    result = _respond("url", risk_level, flags, url_analyzer.summary_for(risk_level))
+    result = _respond("url", risk_level, flags, url_analyzer.summary_for(risk_level), request.url)
     return UrlAnalysisResponse(
         analysis_id=result["analysis_id"],
         risk_level=risk_level,

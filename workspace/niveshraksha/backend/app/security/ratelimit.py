@@ -1,8 +1,10 @@
 """Abuse prevention: a minimal in-memory sliding-window rate limiter.
 
+The limit is env-configurable so deployments and test runs can tune it.
 Sufficient for a single-process hackathon demo. For multi-worker deployments
 this must move to a shared store (e.g. Redis) — documented in SECURITY.md.
 """
+import os
 import threading
 import time
 from collections import defaultdict, deque
@@ -10,12 +12,13 @@ from collections import defaultdict, deque
 from fastapi import HTTPException, Request
 
 WINDOW_SECONDS = 60
-MAX_REQUESTS = 30
 
 
 class SlidingWindowLimiter:
-    def __init__(self, max_requests: int = MAX_REQUESTS, window: int = WINDOW_SECONDS):
-        self.max_requests = max_requests
+    def __init__(self, max_requests: int | None = None, window: int = WINDOW_SECONDS):
+        self.max_requests = max_requests or int(
+            os.environ.get("NIVESHRAKSHA_RATE_LIMIT_PER_MIN", "30")
+        )
         self.window = window
         self._hits: dict[str, deque] = defaultdict(deque)
         self._lock = threading.Lock()

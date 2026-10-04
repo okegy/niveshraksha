@@ -51,6 +51,14 @@ export function ResultView({ result }: { result: AnalysisResult }) {
         <p className="text-xs text-slate-500 dark:text-slate-400">{result.note}</p>
       )}
 
+      {result.detected_language && result.input_type !== "url" && (
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Script detected in your text: <span className="font-medium uppercase">{result.detected_language}</span> —
+          scam-phrase coverage is strongest for English and Tamil; other languages still get the
+          structural checks (payments, credentials, urgency).
+        </p>
+      )}
+
       {result.red_flags.length > 0 && (
         <Card>
           <CardHeader className="pb-3">

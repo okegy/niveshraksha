@@ -39,6 +39,9 @@ class AnalysisResponse(BaseModel):
     safe_next_steps: list[str]
     limitations: list[str]
     created_at: datetime
+    detected_language: str = Field(
+        default="en", description="Script-detected language of the submitted content"
+    )
 
 
 class UrlAnalysisRequest(BaseModel):

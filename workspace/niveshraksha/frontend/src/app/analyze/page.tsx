@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShieldCheck } from "lucide-react";
 import { ResultView } from "@/components/result-view";
+import { VoiceDictation } from "@/components/voice-dictation";
 import { ApiError, api, type AnalysisResult } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
 
@@ -68,13 +69,14 @@ export default function AnalyzePage() {
 
                 <TabsContent value="text">
                   <Textarea
+                    id="message-input"
                     aria-label="Message to analyze"
                     placeholder="Paste the WhatsApp or Telegram message here..."
                     className="min-h-[200px] resize-none"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                   />
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap items-start gap-3">
                     <Button
                       variant="outline"
                       size="sm"
@@ -83,6 +85,12 @@ export default function AnalyzePage() {
                     >
                       Load example (synthetic)
                     </Button>
+                    <VoiceDictation
+                      targetId="message-input"
+                      onTranscript={(text) =>
+                        setMessage((prev) => (prev ? `${prev} ${text}` : text))
+                      }
+                    />
                   </div>
                 </TabsContent>
 

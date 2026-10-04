@@ -11,9 +11,10 @@ Command: `cd workspace/niveshraksha/backend && python -m pytest -q`
 | `test_analyzers.py` — 10 fixed synthetic cases + rule-category coverage | 14 | ✅ pass |
 | `test_url_analyzer.py` — static URL checks + no-network tripwire | 11 | ✅ pass |
 | `test_privacy.py` — PAN/Aadhaar/phone/email/UPI/card/OTP redaction + log scrub | 8 | ✅ pass |
-| `test_api.py` — full API integration incl. consent, deletion, rate-limit fields, honesty copy, no-advice assertion, 6 languages, provenance | 23 | ✅ pass |
+| `test_api.py` — full API integration incl. consent, deletion, honesty copy, no-advice assertion, 6 languages + script detection, provenance | 24 | ✅ pass |
 | `test_evaluation.py` — FP/FN harness over `evaluation/synthetic_cases.json` | 10 | ✅ pass (0 FP, 0 FN) |
-| **Total** | **66** | **✅ all pass** |
+| `test_ratelimit.py` — sliding-window limiter units (limit, isolation, window expiry) | 3 | ✅ pass |
+| **Total** | **70** | **✅ all pass** |
 
 Static gates (same directory):
 

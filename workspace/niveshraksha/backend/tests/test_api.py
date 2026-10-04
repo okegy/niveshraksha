@@ -4,6 +4,9 @@ import tempfile
 
 os.environ["NIVESHRAKSHA_DB_PATH"] = os.path.join(tempfile.gettempdir(), "nr_test.db")
 os.environ.setdefault("NIVESHRAKSHA_RETENTION_HOURS", "72")
+# Keep API integration tests clear of the per-IP rate limiter; the limiter
+# itself is unit-tested separately in test_ratelimit.py.
+os.environ["NIVESHRAKSHA_RATE_LIMIT_PER_MIN"] = "10000"
 
 from fastapi.testclient import TestClient
 
@@ -228,3 +231,19 @@ def test_source_records_audit_trail():
     assert len(records) >= 3  # at least one snapshot of the three sources
     assert all(rec["checksum"] for rec in records)
     assert any("cybercrime" in rec["source_url"] for rec in records)
+
+
+# --- Language detection -----------------------------------------------------------
+
+def test_detected_language_in_response():
+    cases = {
+        "Guaranteed 40% monthly return": "en",
+        "உத்தரவாதம் வருவாய் இன்று மட்டும்": "ta",
+        "गारंटीड रिटर्न आज ही": "hi",
+        "హామీ రాబడి ఈరోజే": "te",
+        "ഉറപ്പുള്ള വരുമാനം ഇന്ന്": "ml",
+        "ಖಾತರಿ ಆದಾಯ ಇಂದೇ": "kn",
+    }
+    for text, expected in cases.items():
+        r = client.post("/api/v1/analyze/message", json={"content": text})
+        assert r.json()["detected_language"] == expected, text
