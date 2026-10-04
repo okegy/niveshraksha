@@ -1,0 +1,9 @@
+fastapi[all]
+pydantic
+SQLAlchemy
+psycopg2-binary
+pytest
+ruff
+mypy
+uvicorn
+python-multipart

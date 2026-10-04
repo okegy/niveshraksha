@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "note": "SYNTHETIC fixture data for the hackathon demo. These advisors DO NOT EXIST. This is NOT regulator data. In production this lookup must be replaced by the official SEBI intermediaries database or an approved API.",
+    "source_of_truth_placeholder": "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13"
+  },
+  "advisors": [
+    {
+      "reg_no": "INA000000001",
+      "name": "Demo Kumar Investment Advisors",
+      "type": "Investment Adviser",
+      "city": "Chennai",
+      "valid_upto": "2027-03-31"
+    },
+    {
+      "reg_no": "INA000000002",
+      "name": "Sample Priya Financial Planning",
+      "type": "Investment Adviser",
+      "city": "Coimbatore",
+      "valid_upto": "2026-12-31"
+    },
+    {
+      "reg_no": "INA000000003",
+      "name": "Test Guardian Wealth Services",
+      "type": "Investment Adviser",
+      "city": "Mumbai",
+      "valid_upto": "2027-06-30"
+    },
+    {
+      "reg_no": "INH000000001",
+      "name": "Example Trust Research LLP",
+      "type": "Research Analyst",
+      "city": "Bengaluru",
+      "valid_upto": "2026-11-30"
+    }
+  ]
+}
