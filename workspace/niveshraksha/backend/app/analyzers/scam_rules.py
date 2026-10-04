@@ -42,7 +42,7 @@ RULES = [
     {
         "code": "IMPERSONATION",
         "label": "Claims a regulator approved a scheme or platform",
-        "pattern": r"(sebi|rbi|rera|irdai|r\.b\.i\.|s\.e\.b\.i\.|hdfc|sbi|icici|axis bank|lic)\s*(?:\w+\s+){0,2}(?:approved|verified|authorized|authorised|certified|recognized|recognised)",
+        "pattern": r"(sebi|rbi|rera|irdai|r\.b\.i\.|s\.e\.b\.i\.|hdfc|sbi|icici|axis bank|lic)[-\s]+(?:\w+[-\s]+){0,2}(?:approved|verified|authorized|authorised|certified|recognized|recognised)",
         "explanation": "The message claims approval from a regulator or bank. Regulators do not approve individual schemes, apps, or returns. Verify any such claim directly on the official website — never through links or numbers in the message. (Claims of being a 'registered advisor' are checked separately — verify the registration number yourself.)",
         "severity": "high",
     },
@@ -81,10 +81,40 @@ RULES = [
         "explanation": "Screenshots of profits are commonly faked or cherry-picked. They are not evidence that an investment is genuine.",
         "severity": "low",
     },
+    {
+        "code": "FEE_TO_UNLOCK_WITHDRAWAL",
+        "label": "Fee demanded to unlock withdrawals or allocations",
+        "pattern": r"(?:pay|transfer|deposit|send)\s+(?:\w+\s+){0,3}?(?:fee|charge|tax|amount)\s+(?:\w+\s+){0,2}?(?:to\s+)?(?:unlock|release|withdraw|unfreeze|allocate)|unlock\s+(?:the\s+)?(?:withdrawal|funds|allocation|ipo)|allocation\s+(?:fee|charge)|release\s+(?:your\s+)?funds?",
+        "explanation": "The message demands a payment before money you are owed can be 'unlocked' or an allocation released. Genuine firms never ask for advance fees to release your own funds or allotments — this is the classic advance-fee scam pattern.",
+        "severity": "high",
+    },
+    {
+        "code": "FAKE_KYC_ACCOUNT_THREAT",
+        "label": "Fake KYC, account-freeze, tax, or penalty threat",
+        "pattern": r"(?:kyc|account|demat|pan\s*card?)\s*(?:expired|suspended|frozen|blocked|invalid|on\s*hold)|account\s+(?:will\s+be\s+)?(?:freez|block|suspend)\w*|(?:income\s*)?tax\s+(?:penalty|due|raid)|penalty\s+(?:of|for)\s+|immediate(?:ly)?\s+(?:suspend|freeze|block)|verify\s+(?:your\s+)?kyc\s+(?:within|before|now)",
+        "explanation": "The message threatens to freeze or suspend your account, or claims a KYC/tax problem that must be fixed immediately. Banks and regulators do not threaten you over links in messages. Contact the institution directly using the number on its official website.",
+        "severity": "high",
+    },
+    {
+        "code": "SENSITIVE_DOCUMENT_REQUEST",
+        "label": "Requests PAN, Aadhaar, or identity documents",
+        "pattern": r"(?:send|share|upload|whatsapp|submit)\s+(?:\w+\s+){0,3}?(?:pan|aadhaar|aadhar|passport|voter\s*id|identity)\s*(?:card|number|screenshot|photo|copy)?|(?:pan|aadhaar|aadhar)\s*(?:card|number)?\s*(?:and|&|\+)\s*(?:upi\s*)?screenshot",
+        "explanation": "The message asks for identity documents such as PAN or Aadhaar. Combined with payment requests, this is used for identity theft and fraudulent account opening. Share documents only through official, verified channels — never in a chat.",
+        "severity": "high",
+    },
+    {
+        "code": "IPO_ALLOCATION_PROMISE",
+        "label": "Promised IPO or allotment access",
+        "pattern": r"(?:ipo|allotment|allocation|pre[-\s]?ipo)\s+(?:is\s+)?(?:guaranteed|assured|reserved|confirmed|available\s+for\s+you)|guaranteed\s+(?:ipo|allotment)",
+        "explanation": "The message promises guaranteed IPO allotment or reserved allocations. IPO allotment is a regulated, lottery-based process — nobody can guarantee one, and 'pre-IPO allocations' offered in chat groups are a common fraud.",
+        "severity": "high",
+    },
 ]
 
-# Thai/Tamil plain-text scam phrases and common English scam phrases that the
-# structured patterns above can miss.
+# Authored multilingual phrase rules. The English/Tamil structured patterns
+# above generalise; these phrase lists carry the remaining languages. They come
+# from the same per-language lexicons used by the ML corpus (app/ml/corpus.py),
+# and a language is only listed here once its evaluation set passes.
 EXTRA_PHRASES: list[dict[str, str | list[str]]] = [
     {
         "code": "URGENCY_PRESSURE",
@@ -95,6 +125,45 @@ EXTRA_PHRASES: list[dict[str, str | list[str]]] = [
         "phrases": ["உத்தரவாதம்", "உறுதியான வருவாய்"],
     },
 ]
+
+# Kinds from app/ml/corpus.py map to rule codes so every supported language's
+# lexicon becomes deterministic, auditable phrase rules.
+_KIND_TO_CODE = {
+    "hook": "GUARANTEED_RETURN",
+    "push": "URGENCY_PRESSURE",
+    "credential": "ASKING_CREDENTIALS",
+    "payment": "PERSONAL_ACCOUNT_PAYMENT",
+    "threat": "FAKE_KYC_ACCOUNT_THREAT",
+    "doc": "SENSITIVE_DOCUMENT_REQUEST",
+}
+
+# Only extend from languages whose structured rules can't already cover them.
+_LANGUAGES_NEEDING_PHRASES = {"ta", "hi", "te", "ml", "kn", "bn", "mr", "gu", "or", "pa", "as"}
+
+
+def _extend_phrases_from_lexicon() -> None:
+    from ..ml.corpus import SCAM_LEXICON
+
+    by_code: dict[str, list[str]] = {}
+    for lang in _LANGUAGES_NEEDING_PHRASES:
+        lex = SCAM_LEXICON.get(lang)
+        if not lex:
+            continue
+        for kind, code in _KIND_TO_CODE.items():
+            for phrase in lex.get(kind, []):
+                if phrase not in by_code.setdefault(code, []):
+                    by_code[code].append(phrase)
+    for code, phrases in by_code.items():
+        existing = next((e for e in EXTRA_PHRASES if e["code"] == code), None)
+        if existing is None:
+            EXTRA_PHRASES.append({"code": code, "phrases": phrases})
+        else:
+            merged = existing["phrases"]
+            merged = merged + [p for p in phrases if p not in merged]  # type: ignore[operator]
+            existing["phrases"] = merged
+
+
+_extend_phrases_from_lexicon()
 
 _COMPILED = [(r, re.compile(r["pattern"], re.IGNORECASE)) for r in RULES]
 
