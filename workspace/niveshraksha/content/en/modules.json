@@ -1,0 +1,86 @@
+[
+  {
+    "id": "module-1",
+    "title": "Scam Warning Signs",
+    "description": "Learn the common tactics scammers use to steal your money.",
+    "content": [
+      "Guaranteed returns: No genuine investment guarantees high returns.",
+      "Urgency: 'Act now' or 'Limited slots' is a pressure tactic.",
+      "Unsolicited messages: Random WhatsApp/Telegram tips are extremely risky.",
+      "Payment to personal accounts: Real firms never ask for money in someone's personal name or a personal wallet.",
+      "Screenshots of profits are easily faked — they are not proof."
+    ],
+    "source_ids": ["sebi-investor-education"]
+  },
+  {
+    "id": "module-2",
+    "title": "How to Verify an Advisor",
+    "description": "Step-by-step guide to checking SEBI registration.",
+    "content": [
+      "Ask for their SEBI Registration Number (starts with INA or INH).",
+      "Never trust a screenshot of a certificate. They are easily forged.",
+      "Go to sebi.gov.in and search the intermediaries database yourself.",
+      "If the registration cannot be found, do not invest and do not share documents."
+    ],
+    "source_ids": ["sebi-intermediaries-db"]
+  },
+  {
+    "id": "module-3",
+    "title": "Safe Digital Payments",
+    "description": "Understand OTP, UPI PIN, and how money actually moves.",
+    "content": [
+      "An OTP is a one-time password for a transaction happening right now. Nobody legitimate ever needs it.",
+      "A UPI PIN authorises money LEAVING your account. Never enter it to 'receive' money.",
+      "Scammers pose as bank staff, delivery agents, or officials to rush you into sharing a PIN.",
+      "If a caller asks for an OTP or PIN, hang up. Call your bank using the number on its official website."
+    ],
+    "source_ids": ["rbi-awareness"]
+  },
+  {
+    "id": "module-4",
+    "title": "Know Your Investor Rights",
+    "description": "What you are entitled to when dealing with registered entities.",
+    "content": [
+      "Registered intermediaries must give you official documents and disclosures.",
+      "You can file a complaint against a SEBI-registered entity on scores.sebi.gov.in.",
+      "You have the right to ask for the advisor's registration number and verify it.",
+      "Unregistered advisors giving paid tips are acting outside the law — report them."
+    ],
+    "source_ids": ["sebi-scores"]
+  },
+  {
+    "id": "module-5",
+    "title": "Preparing a Complaint",
+    "description": "How to document an incident so it can be reported effectively.",
+    "content": [
+      "Save the original messages, numbers, UPI IDs, and links — do not delete the chat.",
+      "Note dates, times, and the amounts involved.",
+      "Do not share your own banking passwords while collecting evidence.",
+      "Report online fraud within the golden hour at cybercrime.gov.in or call 1930."
+    ],
+    "source_ids": ["cybercrime-portal"]
+  },
+  {
+    "id": "module-6",
+    "title": "Nomination Awareness",
+    "description": "Why nominations matter for your family's safety.",
+    "content": [
+      "A nomination ensures your investments reach the right person without lengthy legal processes.",
+      "Keep nominee details updated after major life events.",
+      "Discuss nominations with family so they know what exists and where records are."
+    ],
+    "source_ids": ["sebi-investor-education"]
+  },
+  {
+    "id": "module-7",
+    "title": "Spotting Financial Misinformation",
+    "description": "How to judge viral investment claims and forward messages.",
+    "content": [
+      "Forwarded messages are not evidence. Ask: who benefits if I believe this?",
+      "Check whether the claim appears on the official website of the regulator or company.",
+      "Be extra sceptical of claims about 'government schemes' with deadlines.",
+      "Use the Pause. Verify. Protect. habit: pause before acting, verify on official sources, then decide."
+    ],
+    "source_ids": ["sebi-investor-education"]
+  }
+]
