@@ -1,13 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Loader2, Send, ShieldCheck, Ban } from "lucide-react";
+import { Ban, ExternalLink, Loader2, Mic, MicOff, Send, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { ApiError, api } from "@/lib/api";
+import { ApiError, api, getUserSessionId } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n";
+import { useSettings } from "@/lib/settings";
+import { GuideAvatar, UserAvatar } from "@/components/avatars";
 
 interface Citation {
   document_id: string;
@@ -25,36 +27,63 @@ interface Turn {
   citations?: Citation[];
   uncertainty?: string;
   latency_ms?: number;
+  agent?: Record<string, unknown>;
 }
 
-function ChatAvatar({ typing }: { typing: boolean }) {
-  return (
-    <div
-      aria-hidden
-      className={`shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-teal-500/90 to-cyan-600/90 flex items-center justify-center shadow-md ${
-        typing ? "animate-pulse" : ""
-      }`}
-    >
-      <ShieldCheck className="h-6 w-6 text-white" />
-    </div>
-  );
-}
+const LOCALE_BY_LANGUAGE: Record<string, string> = {
+  en: "en-IN", ta: "ta-IN", hi: "hi-IN", te: "te-IN", ml: "ml-IN", kn: "kn-IN",
+  bn: "bn-IN", mr: "mr-IN", gu: "gu-IN", or: "or-IN", pa: "pa-IN", as: "as-IN",
+};
 
 const SUGGESTIONS = [
   "How do I verify an investment advisor?",
   "What should I do after sending money to a scammer?",
   "What is an OTP and who may ask for it?",
-  "How do I preserve evidence of a scam?",
+  "Is this message a scam? Guaranteed 40% monthly return, only 2 slots left, send PAN and UPI screenshot to unlock withdrawal!",
   "Which stock gives the highest return?",
 ];
 
 export default function ChatPage() {
   const { language } = useLanguage();
+  const [settings] = useSettings();
   const [messages, setMessages] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [voiceNote, setVoiceNote] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const lastReplyRef = useRef<string>("");
+
+  // Continue the private encrypted history when the user opted in.
+  useEffect(() => {
+    if (!settings.saveChatHistory) return;
+    api
+      .getChatHistory(getUserSessionId())
+      .then((d) => {
+        setMessages(
+          d.messages.map((m) => ({
+            role: m.role === "user" ? "user" : "guide",
+            text: m.content,
+            refused: Boolean((m.meta as { refused?: boolean })?.refused),
+            citations: (m.meta as { citations?: Citation[] })?.citations,
+          })),
+        );
+      })
+      .catch(() => setVoiceNote("Could not load your saved history — starting a fresh conversation."));
+  }, [settings.saveChatHistory]);
+
+  const speak = async (text: string) => {
+    try {
+      const blob = await api.speakText(text, LOCALE_BY_LANGUAGE[language] ?? "en-IN");
+      const audio = new Audio(URL.createObjectURL(blob));
+      audio.play();
+    } catch {
+      setVoiceNote("Voice playback unavailable right now.");
+    }
+  };
 
   const send = async (text: string) => {
     const question = text.trim();
@@ -64,7 +93,10 @@ export default function ChatPage() {
     setInput("");
     setTyping(true);
     try {
-      const reply = await api.chatMessage({ message: question, language });
+      const reply = await api.chatMessage(
+        { message: question, language, save_history: settings.saveChatHistory },
+        getUserSessionId(),
+      );
       setMessages((prev) => [
         ...prev,
         {
@@ -74,8 +106,11 @@ export default function ChatPage() {
           citations: reply.citations,
           uncertainty: reply.uncertainty,
           latency_ms: reply.latency_ms,
+          agent: reply.agent,
         },
       ]);
+      lastReplyRef.current = reply.reply;
+      if (settings.voiceReplies) speak(reply.reply);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "The assistant is unreachable right now. Please try again.");
     } finally {
@@ -84,15 +119,52 @@ export default function ChatPage() {
     }
   };
 
+  const toggleMic = async () => {
+    if (recording) {
+      mediaRef.current?.stop();
+      return;
+    }
+    setVoiceNote(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        setRecording(false);
+        setTyping(true);
+        try {
+          const blob = new Blob(chunksRef.current, { type: "audio/wav" });
+          const transcript = await api.transcribeAudio(blob, LOCALE_BY_LANGUAGE[language] ?? "en-IN");
+          if (transcript) {
+            await send(transcript);
+          } else {
+            setVoiceNote("No speech detected in the recording.");
+            setTyping(false);
+          }
+        } catch (e) {
+          setVoiceNote(e instanceof ApiError ? e.message : "Transcription failed.");
+          setTyping(false);
+        }
+      };
+      mediaRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+    } catch {
+      setVoiceNote("Microphone permission denied or unavailable. You can type instead.");
+    }
+  };
+
   return (
     <div className="min-h-[80vh] p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6 flex items-center gap-4">
-          <ChatAvatar typing={typing} />
+          <GuideAvatar avatar={settings.guideAvatar} size={44} typing={typing} />
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Raksha Guide</h1>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              A cited safety assistant. It explains warnings, verification, and official channels — never investment advice.
+              A cited safety assistant with agentic tools. It explains warnings, verifies advisors, and points to official channels — never investment advice.
             </p>
           </div>
         </div>
@@ -103,7 +175,7 @@ export default function ChatPage() {
               {messages.length === 0 && !typing && (
                 <div className="text-center py-8">
                   <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                    Try one of these — including one the Guide must refuse:
+                    Try one of these — the last two show the agent&apos;s tools and its refusal behaviour:
                   </p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {SUGGESTIONS.map((s) => (
@@ -122,14 +194,15 @@ export default function ChatPage() {
 
               {messages.map((m, i) =>
                 m.role === "user" ? (
-                  <div key={i} className="flex justify-end">
-                    <p className="max-w-[85%] bg-teal-600 text-white rounded-2xl rounded-br-sm px-4 py-2 text-sm">
+                  <div key={i} className="flex justify-end items-end gap-2">
+                    <p className="max-w-[85%] rounded-2xl rounded-br-sm px-4 py-2 text-sm text-white" style={{ background: "var(--nr-accent, #0d9488)" }}>
                       {m.text}
                     </p>
+                    <UserAvatar avatar={settings.userAvatar} size={32} />
                   </div>
                 ) : (
                   <div key={i} className="flex gap-3">
-                    <ChatAvatar typing={false} />
+                    <GuideAvatar avatar={settings.guideAvatar} size={36} />
                     <div className="max-w-[85%] space-y-2">
                       <div
                         className={`rounded-2xl rounded-bl-sm px-4 py-3 text-sm border ${
@@ -144,6 +217,21 @@ export default function ChatPage() {
                           </p>
                         )}
                         {m.text}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => speak(m.text)}
+                          aria-label="Read this reply aloud"
+                          className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-teal-700 dark:hover:text-teal-400"
+                        >
+                          <Volume2 className="h-3.5 w-3.5" aria-hidden /> Listen
+                        </button>
+                        {(m.agent as { tools?: string[] } | undefined)?.tools && (m.agent as { tools: string[] }).tools.length > 0 && (
+                          <span className="text-[11px] text-slate-400">
+                            🔧 used: {(m.agent as { tools: string[] }).tools.join(", ")}
+                          </span>
+                        )}
                       </div>
                       {m.citations && m.citations.length > 0 && (
                         <div className="text-xs space-y-1 pl-1">
@@ -173,10 +261,12 @@ export default function ChatPage() {
 
               {typing && (
                 <div className="flex gap-3">
-                  <ChatAvatar typing />
+                  <GuideAvatar avatar={settings.guideAvatar} size={36} typing />
                   <Loader2 className="h-5 w-5 animate-spin text-teal-600 mt-2" aria-label="Raksha Guide is composing a reply" />
                 </div>
               )}
+
+              {voiceNote && <p className="text-xs text-amber-700 dark:text-amber-500">{voiceNote}</p>}
 
               {error && (
                 <p role="alert" className="text-sm text-red-600 dark:text-red-400">
@@ -206,18 +296,36 @@ export default function ChatPage() {
                 }}
               />
               <Button
+                type="button"
+                onClick={toggleMic}
+                aria-pressed={recording}
+                aria-label={recording ? "Stop recording and transcribe" : "Record a voice question"}
+                className="min-h-[48px] px-3 border border-slate-200 dark:border-slate-700"
+                variant="outline"
+              >
+                {recording ? <MicOff className="h-4 w-4 text-red-600" aria-hidden /> : <Mic className="h-4 w-4 text-teal-600" aria-hidden />}
+              </Button>
+              <Button
                 type="submit"
                 disabled={!input.trim() || typing}
-                className="bg-teal-600 hover:bg-teal-700 text-white min-h-[48px] px-4"
+                className="min-h-[48px] px-4 text-white"
+                style={{ background: "var(--nr-accent, #0d9488)" }}
                 aria-label="Send question"
               >
                 <Send className="h-4 w-4" aria-hidden />
               </Button>
             </form>
+            {recording && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-2" role="status">
+                Recording… speak now. Click the mic again to stop and transcribe.
+              </p>
+            )}
             <p className="text-[11px] text-slate-400 mt-2">
-              Answers come only from curated, cited sources. The Guide never recommends investments, predicts
-              prices, or declares anyone genuine. See <Link href="/about" className="underline">About</Link> for the
-              source policy.
+              {settings.saveChatHistory
+                ? "🔒 Private history is ON: turns are encrypted at rest with your browser's session key and auto-delete after 72 hours."
+                : "Private history is off — nothing from this chat is stored."}{" "}
+              Answers come only from cited sources; the agent runs deterministic tools and never
+              recommends investments. See <Link href="/about" className="underline">About</Link>.
             </p>
           </CardContent>
         </Card>

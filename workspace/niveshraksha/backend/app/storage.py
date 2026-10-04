@@ -88,6 +88,25 @@ class SourceRecord(Base):
     checksum: Mapped[str] = mapped_column(String(64))
 
 
+class ChatMessage(Base):
+    """Opt-in private chat history, encrypted at rest.
+
+    Content is Fernet-encrypted with a key derived from
+    PBKDF2(user_session_token + server secret). The token is presented by the
+    client each time and is NOT stored in this table — rows are undecipherable
+    without it. Auto-expires like every other user-facing row.
+    """
+    __tablename__ = "chat_messages"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_key_id: Mapped[str] = mapped_column(String(64))  # PBKDF2 hash prefix, for lookup only
+    role: Mapped[str] = mapped_column(String(12))  # user | guide
+    encrypted_content: Mapped[str] = mapped_column(Text)  # Fernet token (base64)
+    encrypted_meta: Mapped[str] = mapped_column(Text)  # Fernet token (citations JSON etc.)
+    language: Mapped[str] = mapped_column(String(8))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime)
+
+
 def init_db() -> None:
     os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     Base.metadata.create_all(engine)

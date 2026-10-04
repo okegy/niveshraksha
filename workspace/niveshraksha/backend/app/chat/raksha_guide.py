@@ -135,6 +135,15 @@ class RakshaGuide:
         scored.sort(key=lambda x: x[1], reverse=True)
         return [(d, s) for d, s in scored[:top_k] if s > 0.08]
 
+    def docs_by_id(self, doc_id: str) -> dict[str, Any] | None:
+        d = next((d for d in self.docs if d.id == doc_id), None)
+        if not d:
+            return None
+        return {
+            "document_id": d.id, "source_name": d.source_name, "source_url": d.source_url,
+            "retrieved_at": d.retrieved_at, "freshness": d.freshness, "title": d.title,
+        }
+
     def answer(self, question: str, top_k: int = 3) -> dict[str, Any]:
         t0 = time.perf_counter()
         question = question[:1000]

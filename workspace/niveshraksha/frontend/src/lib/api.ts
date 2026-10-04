@@ -190,11 +190,56 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
 
-  chatMessage: (payload: { message: string; language: string }) =>
-    request<ChatReply>("/api/v1/chat/message", {
+  chatMessage: (payload: { message: string; language: string; save_history?: boolean }, sessionToken?: string) =>
+    request<ChatReply & { detected_language?: string; agent?: Record<string, unknown> }>("/api/v1/chat/message", {
       method: "POST",
+      headers: { "Content-Type": "application/json", ...(sessionToken ? { "x-session-token": sessionToken } : {}) },
       body: JSON.stringify(payload),
     }),
+
+  getChatHistory: (sessionToken: string) =>
+    request<{ messages: { id: string; role: string; content: string; meta: Record<string, unknown>; created_at: string }[]; encrypted_at_rest?: boolean }>(
+      "/api/v1/chat/history",
+      { headers: { "x-session-token": sessionToken } },
+    ),
+
+  clearChatHistory: (sessionToken: string) =>
+    request<{ deleted: number; note: string }>("/api/v1/chat/history", {
+      method: "DELETE",
+      headers: { "x-session-token": sessionToken },
+    }),
+
+  voiceStatus: () =>
+    request<{ service: string; available: boolean; reason?: string; tts_model?: string }>("/api/v1/voice/status"),
+
+  speakText: async (text: string, language: string): Promise<Blob> => {
+    const res = await fetch(`${API_BASE_URL}/api/v1/voice/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language }),
+    });
+    if (!res.ok) throw new ApiError(`Voice synthesis failed (${res.status})`, res.status);
+    return res.blob();
+  },
+
+  transcribeAudio: async (audio: Blob, language: string): Promise<string> => {
+    const form = new FormData();
+    form.append("file", audio, "recording.wav");
+    const res = await fetch(`${API_BASE_URL}/api/v1/voice/transcribe?language=${encodeURIComponent(language)}`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      let detail = `Transcription failed (${res.status})`;
+      try {
+        const body = await res.json();
+        if (body?.detail) detail = body.detail;
+      } catch { /* keep generic */ }
+      throw new ApiError(detail, res.status);
+    }
+    const data = await res.json();
+    return data.transcript as string;
+  },
 
   analyzeScreenshot: (file: File) => {
     const form = new FormData();

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Moon, X } from "lucide-react";
 import { useLanguage, type DictKey } from "@/lib/i18n";
+import { applyPalette, useSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS: { href: string; key: DictKey | string; label?: string }[] = [
@@ -14,6 +15,7 @@ const NAV_ITEMS: { href: string; key: DictKey | string; label?: string }[] = [
   { href: "/pause", key: "nav_pause" },
   { href: "/learn", key: "nav_learn" },
   { href: "/report", key: "nav_report" },
+  { href: "/settings", key: "settings", label: "Settings" },
   { href: "/about", key: "nav_about" },
 ];
 
@@ -75,7 +77,13 @@ export function SiteHeader() {
   const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
   const a11y = useA11y();
+  const [settings] = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Apply the user's palette site-wide on every change (and on mount).
+  useEffect(() => {
+    applyPalette(settings.palette);
+  }, [settings.palette]);
 
   const toggleLargeText = useCallback(() => {
     const current = readA11y();
