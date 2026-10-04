@@ -34,6 +34,16 @@ The same pipeline scrubs every log record (`app/security/logging_setup.py`), so 
 - Deletion is real: the row is physically deleted, not flagged (asserted by tests).
 - Auto-expiry runs opportunistically on every write; expired rows are hard-deleted.
 
+## v3 additions
+
+| Data | Handling |
+|---|---|
+| Voice recordings (chat mic) | Sent from the browser to our backend → Sarvam STT, **never stored** on our side; processed by Sarvam AI under their privacy notice (disclosed in the UI) |
+| TTS audio | Generated per request from Guide text, streamed to the browser, never cached server-side |
+| Opt-in chat history | Fernet-encrypted at rest with a key derived from PBKDF2(browser session token + server secret). The token is never stored server-side — a lost token means unreadable history (by design). Auto-expires in 72 h; delete-all in Settings |
+| Screenshot OCR | Processed fully in memory by a local on-device engine (RapidOCR); images never stored; extracted text redacted before persisting any result snapshot |
+| Community threat reports | Kept in demo-session memory only (not the database), scored by the deterministic engine, labelled as community content |
+
 ## What we never do
 
 - Never ask for OTPs, PINs, passwords, card numbers, or remote-access permission.

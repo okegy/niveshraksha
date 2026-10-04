@@ -1,6 +1,6 @@
 # Test Report — NiveshRaksha
 
-Build date: 2026-10-04 (updated after the completion-prompt pass). All numbers reproducible with the commands shown.
+Build date: 2026-10-04 (v3: SENTINEL-X portal + OCR screenshot profiler + agentic chat + voice). All numbers reproducible with the commands shown.
 
 ## Backend
 
@@ -15,7 +15,8 @@ Command: `cd workspace/niveshraksha/backend && python -m pytest -q`
 | `test_evaluation.py` — FP/FN harness over `evaluation/synthetic_cases.json` | 10 | ✅ pass (0 FP, 0 FN) |
 | `test_ratelimit.py` — sliding-window limiter units (limit, isolation, window expiry) | 3 | ✅ pass |
 | `test_api.py` extra: redaction-preview endpoint | included above | ✅ |
-| **Total** | **86** | **✅ all pass** |
+| `test_portal.py` — unified query scanner (7 input types), threat feed, engine-scored community reports | 5 | ✅ pass |
+| **Total** | **91** | **✅ all pass** |
 
 Static gates (same directory):
 
@@ -85,3 +86,4 @@ Every API response in `test_api.py` passes `assert_no_advice`, which scans seria
 2. Real-world FP/FN rates unmeasured; the synthetic per-language harness guards regressions, not field accuracy.
 3. Screenshot/image OCR not implemented (validated-and-discarded upload endpoint ships instead) — documented limitation.
 4. Docker Engine unavailable in this environment — Compose end-to-end pending a Docker-capable machine.
+5. Screenshot OCR is now functional (local RapidOCR); numpy pinned 1.26.4 and an onnx-first import guard prevents an OpenMP segfault when sklearn and onnxruntime load in one process — covered by the full-suite run which exercises both engines in a single TestClient process.

@@ -28,6 +28,14 @@ Companion to `THREAT_MODEL.md`. This document maps each control to its implement
 - `pyproject.toml` pins tool config; `requirements.txt` lists runtime deps for pinned-install reproducibility.
 - Containers run as non-root users; backend healthcheck via stdlib urllib; `.dockerignore` excludes data, caches, and tests.
 
+## v3 security notes
+
+- **LLM adapters (Grok/MiMo)**: keys live only in the gitignored `backend/.env`; the frontend talks to our backend, never to the provider. Provider availability is probed and reported at `/api/v1/chat/status` without exposing keys. LLM output passes the no-advice validator and can never override deterministic refusals.
+- **Voice proxy**: Sarvam key server-side only; audio size-capped (10 MB), never stored.
+- **Encrypted chat history**: PBKDF2(200k)-derived Fernet keys; wrong tokens decrypt nothing; physical deletion on request.
+- **OCR**: local onnxruntime engine — screenshots never leave the machine, and an onnx-first import guard prevents the OpenMP segfault between sklearn and onnxruntime.
+- **Dependency pinning**: numpy==1.26.4 (sklearn binary compat), starlette<0.39, anyio==4.4.0 (tool-install side effects) are pinned in `requirements.txt` to keep installs reproducible.
+
 ## Recommended before any production use (not done in demo)
 
 1. gitleaks/semgrep/trivy in CI (tools not installed in the demo environment; commands documented in the master runbook).

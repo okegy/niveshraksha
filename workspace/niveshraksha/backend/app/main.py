@@ -35,6 +35,14 @@ logger = logging.getLogger("niveshraksha")
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     init_db()
+    # onnxruntime (OCR) and sklearn (baseline) ship conflicting OpenMP
+    # runtimes: loading sklearn first segfaults the process. Pre-import
+    # onnxruntime so the safe order holds no matter which endpoint runs
+    # first; both are optional and failures are non-fatal.
+    try:
+        import onnxruntime  # noqa: F401
+    except Exception:
+        pass
     logger.info("NiveshRaksha API started — safety analysis only, no investment advice.")
     yield
 

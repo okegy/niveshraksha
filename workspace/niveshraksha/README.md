@@ -14,7 +14,7 @@ NiveshRaksha is a privacy-first investor **safety** tool built for the Sangyan I
 
 | Feature | Route | Description |
 |---|---|---|
-| Scam Message Analyzer | `/analyze` | Deterministic red-flag rules over pasted messages (English & Tamil): guaranteed returns, urgency pressure, OTP/UPI-PIN requests, impersonation, personal-account payments, and more. Every flag shows **what was detected, why it may be risky, the exact matched text, and safe next steps**. The detected script (ta/hi/te/ml/kn/en) is reported honestly alongside coverage limits. |
+| **SENTINEL-X portal** (`/`) | Cyberpunk verification portal: matrix-rain hero scanner that auto-classifies **URL / crypto address / email / Telegram handle / phone / free text**, live threat feed, engine-scored community reports, and a fraud-submission modal. All previous features remain one click away. | Every flag shows **what was detected, why it may be risky, the exact matched text, and safe next steps**. The detected script (ta/hi/te/ml/kn/en) is reported honestly alongside coverage limits. |
 | Suspicious URL Checker | `/analyze` (URL tab) | Static-only link review: missing HTTPS, URL shorteners, raw-IP hosts, punycode/lookalike domains, brand-in-subdomain deception, embedded credentials, high-abuse TLDs. The page is **never** opened or fetched (no SSRF surface by design). |
 | Advisor Verification | `/verify` | Checks a SEBI registration number or name against a **clearly-labelled synthetic demo fixture** (never presented as regulator data). Every result states the source, retrieval time, match quality, and honest uncertainty. |
 | Evidence Locker | `/report` | Private, redacted incident drafts with **explicit consent** before storage, 72-hour auto-expiry, on-demand deletion, and text export. Links to official reporting portals only — nothing is submitted on your behalf. |
@@ -101,7 +101,7 @@ No secrets are required for the demo — all external integrations run in mock/s
 ```bash
 # backend
 cd backend
-python -m pytest -q          # 70 tests: rules, URL checks, privacy, rate limiter, API, 6-language education + script detection, evaluation FP/FN harness
+python -m pytest -q          # 91 tests: rules, URL checks, privacy, rate limiter, API, 12-language education + script detection, agentic chat, portal scanner, evaluation FP/FN harness
 ruff check .
 mypy app
 
@@ -127,7 +127,7 @@ The evaluation harness (`backend/tests/test_evaluation.py`) runs the fixed synth
 - Advisor verification uses a synthetic fixture; live SEBI integration is future work.
 - URL checks are static only — a link with no static red flags can still be dangerous.
 - Analyzer rule coverage is strongest for English and common Tamil phrasing; the four other UI languages (Hindi, Telugu, Malayalam, Kannada) have full education content but analyzer patterns remain EN/TA-heavy.
-- Screenshots/images cannot be analysed yet.
+- OCR-based screenshot scoring runs locally (RapidOCR) but remains imperfect on stylised/low-quality images; deepfake video/audio detection is out of scope.
 - The rate limiter is in-memory and per-process; multi-worker deployments need a shared store.
 
 ## Prohibited use

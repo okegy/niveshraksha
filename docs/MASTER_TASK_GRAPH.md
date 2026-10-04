@@ -61,6 +61,17 @@
 - [x] Demo script and pitch deck (`docs/DEMO_SCRIPT.md`, `docs/PITCH_DECK.md`)
 - [x] Test report (`docs/TEST_REPORT.md`)
 
+## v3 — SENTINEL-X portal, OCR profiler, agentic AI, voice (Completed)
+- [x] SENTINEL-X cyberpunk landing: matrix rain, glowing cards, threat ticker/stats, hero scan, live feed, fraud-submission modal (all previous features intact)
+- [x] Unified query scanner `POST /api/v1/analyze/query` — URL / crypto / email / Telegram / phone / text with per-type deterministic checks
+- [x] Screenshot Tip-Group Profiler: local RapidOCR → deterministic flags (numpy pinned 1.26.4; onnx-first import guard vs sklearn OpenMP clash)
+- [x] Agentic Raksha Guide: deterministic refusals → tool selection (analyzer / advisor verification) → optional LLM synthesis (Grok/MiMo adapters, validated) → extractive fallback; honest provider status endpoint
+- [x] Voice: Sarvam TTS/STT proxy (key server-side only), browser mic + Listen playback
+- [x] Private chat history: opt-in, Fernet-encrypted at rest with PBKDF2 session-token keys, 72 h expiry, delete-all
+- [x] `/settings`: palette picker (CSS-variable theming), SVG avatar picker, voice + history toggles
+- [x] Threat feed/stats endpoints with honest demo labelling; community reports engine-scored
+- [x] 91 backend tests + 8/8 Playwright E2E; ruff/mypy/lint/typecheck/build clean; gitleaks re-run clean
+
 ## Final delivery
 - [x] Root files: README.md, LICENSE (MIT), NOTICE.md, CONTRIBUTING.md, .env.example, .gitignore, docker-compose.yml, backend/frontend Dockerfiles
 - [x] Git repository initialized with clean, segmented commits
