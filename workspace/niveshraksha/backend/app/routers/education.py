@@ -9,7 +9,7 @@ from ..security.ratelimit import client_key, limiter
 router = APIRouter()
 
 CONTENT_DIR = Path(__file__).resolve().parents[3] / "content"  # workspace/niveshraksha/content
-LANGUAGES = {"en", "ta", "hi", "te", "ml", "kn"}
+LANGUAGES = {"en", "ta", "hi", "te", "ml", "kn", "bn", "mr", "gu", "or", "pa", "as"}
 
 
 def _load_modules(language: str) -> tuple[str, list[EducationModule]]:

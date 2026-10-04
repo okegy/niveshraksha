@@ -62,7 +62,13 @@ def _respond(
         "limitations": LIMITATIONS,
         "created_at": datetime.now(UTC),
         "detected_language": detect_script_language(content),
+        "ml_metadata": {},
     }
+    # Advisory ML signal — computed for text only; rules remain the decider.
+    if input_type == "message":
+        from ..ml.classifiers import assistive_score
+
+        result["ml_metadata"] = assistive_score(content)
     # Persist the result with user content already redacted.
     redacted_snapshot = dict(result)
     redacted_snapshot["red_flags"] = [

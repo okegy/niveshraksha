@@ -28,6 +28,9 @@ ignore = [
 # stay on one line to remain auditable and diff-able.
 "app/analyzers/*.py" = ["E501"]
 "app/security/redaction.py" = ["E501"]
+"app/chat/raksha_guide.py" = ["E501"]
+"app/ml/corpus.py" = ["E501"]
+"app/ml/classifiers.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

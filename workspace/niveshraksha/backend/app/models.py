@@ -27,7 +27,7 @@ class VerifiedSource(BaseModel):
 
 class AnalysisRequest(BaseModel):
     content: str = Field(min_length=1, max_length=10000)
-    language: str = Field(default="en", pattern="^(en|ta|hi|te|ml|kn)$")
+    language: str = Field(default="en", pattern="^(en|ta|hi|te|ml|kn|bn|mr|gu|or|pa|as)$")
 
 
 class AnalysisResponse(BaseModel):
@@ -42,11 +42,15 @@ class AnalysisResponse(BaseModel):
     detected_language: str = Field(
         default="en", description="Script-detected language of the submitted content"
     )
+    ml_metadata: dict = Field(
+        default_factory=dict,
+        description="Advisory model signals (never the decision-maker) and availability status",
+    )
 
 
 class UrlAnalysisRequest(BaseModel):
     url: str = Field(min_length=1, max_length=2048)
-    language: str = Field(default="en", pattern="^(en|ta|hi|te|ml|kn)$")
+    language: str = Field(default="en", pattern="^(en|ta|hi|te|ml|kn|bn|mr|gu|or|pa|as)$")
 
 
 class UrlAnalysisResponse(BaseModel):
