@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n";
 import { SiteHeader } from "@/components/site-header";
+import { ChatWidget } from "@/components/chat-widget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Safety analysis only. Never investment advice. Verify everything through official sources.
             </p>
           </footer>
+          <ChatWidget />
         </LanguageProvider>
       </body>
     </html>

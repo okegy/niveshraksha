@@ -46,7 +46,20 @@ def _context_from_docs(guide: Any, question: str) -> str:
         "No relevant knowledge-base documents found."
 
 
-def guide_answer(question: str, language: str = "en") -> dict[str, Any]:
+PAGE_HINTS: dict[str, str] = {
+    "/": "The user is on the SENTINEL-X home portal (scan bar, threat feed).",
+    "/analyze": "The user is on the message/URL/screenshot analyzer page.",
+    "/verify": "The user is on the advisor-verification page (demo fixture, always labelled).",
+    "/pause": "The user is on the 30-second behavioural pause checklist.",
+    "/learn": "The user is on the education hub (7 lessons, 12 languages).",
+    "/report": "The user is on the Evidence Locker (redacted, consent-gated, 72 h drafts).",
+    "/about": "The user is on the About page (methodology, sources, limitations).",
+    "/settings": "The user is on Settings (palette, avatars, voice, encrypted history).",
+    "/result": "The user is viewing a stored analysis result.",
+}
+
+
+def guide_answer(question: str, language: str = "en", page_context: str = "") -> dict[str, Any]:
     guide = get_guide()
     tool_used: str | None = None
     tool_result: dict[str, Any] | None = None
@@ -96,6 +109,9 @@ def guide_answer(question: str, language: str = "en") -> dict[str, Any]:
 
     # 3. LLM synthesis over grounded context (only when a provider is live).
     context = tool_result["text"] if tool_result else _context_from_docs(guide, question)
+    page_hint = PAGE_HINTS.get(page_context or "", "")
+    if page_hint:
+        context = f"{context}\n\n[PAGE CONTEXT] {page_hint}"
     citations = tool_result["citations"] if tool_result else base.get("citations", [])
     llm_meta: str | dict[str, Any] = "not_available (deterministic extractive answer used)"
     answer = tool_result["text"] if tool_result else base["answer"]

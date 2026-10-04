@@ -190,7 +190,10 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
 
-  chatMessage: (payload: { message: string; language: string; save_history?: boolean }, sessionToken?: string) =>
+  chatMessage: (
+    payload: { message: string; language: string; save_history?: boolean; page_context?: string },
+    sessionToken?: string,
+  ) =>
     request<ChatReply & { detected_language?: string; agent?: Record<string, unknown> }>("/api/v1/chat/message", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(sessionToken ? { "x-session-token": sessionToken } : {}) },

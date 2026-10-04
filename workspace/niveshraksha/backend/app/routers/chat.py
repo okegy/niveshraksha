@@ -16,6 +16,9 @@ class ChatRequest(BaseModel):
     language: str = Field(default="en", pattern="^(en|ta|hi|te|ml|kn|bn|mr|gu|or|pa|as)$")
     # Opt-in private history: encrypted at rest, only with explicit consent.
     save_history: bool = Field(default=False)
+    # Where the user is in the app (for the floating widget) — grounding hint
+    # for the optional LLM path only; the deterministic path ignores it.
+    page_context: str = Field(default="", max_length=300)
 
 
 class ChatCitation(BaseModel):
@@ -46,7 +49,7 @@ async def chat_message(payload: ChatRequest, http_request: Request):
     never authoritative) → cited answer. Untrusted content is data, never
     instructions."""
     limiter.check(client_key(http_request))
-    result = guide_answer(payload.message, payload.language)
+    result = guide_answer(payload.message, payload.language, page_context=payload.page_context)
     reply = result.get("answer")
     if reply is None:
         raise HTTPException(status_code=500, detail="Assistant could not compose a reply. Please try again.")
