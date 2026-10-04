@@ -24,3 +24,28 @@ Source under review: **SEBI_safe_space** (https://github.com/frharsh/SEBI_safe_s
 Frontend: Next.js, React, Tailwind CSS, Base UI, lucide-react, tw-animate-css (MIT/ISC).
 Backend: FastAPI, Pydantic, SQLAlchemy, Uvicorn (MIT/BSD).
 Full acknowledgements: `NOTICE.md` in `workspace/niveshraksha/`.
+
+---
+
+## v2 multilingual build — audited repositories (full audits in repository-audits/)
+
+| Repository | License | Reuse in v2 |
+|---|---|---|
+| ai_scam_detector | MIT | Concepts only: hybrid rules+ML layering, feedback ideas. No code copied. |
+| rag-fastapi-chatbot | MIT | Concepts only: ingestion/chunking flow informed our knowledge-corpus design. |
+| SMS-Scam-Detection-Transformer | none | Inspiration only — no code reuse. |
+| NLP-Cyber-Harm-Detection | none | Inspiration only. |
+| RAG-Chatbot-with-FastAPI | none | Inspiration only. |
+| indicnlp_corpus | no root license | Not used; future embedding source (license must be confirmed first). |
+| tamil-nlp-catalog | none | Reading reference. |
+| graphify | Apache-2.0 | Skill audited, not installed. |
+| awesome-design-md | MIT | Design-doc structure reference. |
+| get-shit-done | MIT | Reference only. |
+| everything-claude-code | MIT | Reference only (synthetic test fixtures flagged and cleared). |
+| ui-ux-pro-max | N/A | Repository not found upstream (404) — recorded honestly. |
+
+## v2 ML/RAG provenance
+
+- TF-IDF+LR baseline: trained **only** on this project's authored synthetic corpus (app/ml/corpus.py). No third-party dataset.
+- Raksha Guide retrieval: original multilingual TF-IDF implementation over our own knowledge/knowledge_base.json. No external vector DB or embedding service.
+- IndicBERT adapter: interface only; weights not downloaded in this build (see docs/MODEL_CARD.md).
