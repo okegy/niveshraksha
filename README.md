@@ -14,7 +14,7 @@ NiveshRaksha is a privacy-first investor safety tool built for the Sangyan Inves
 
 | High-Risk Analysis | Dashboard / Tests |
 | --- | --- |
-| ![Analysis Result](../docs/images/analyze-high-risk.png) | ![Deployed](../docs/images/vercel-deployed.png) |
+| ![Analysis Result](docs/images/analyze-high-risk.png) | ![Deployed](docs/images/vercel-deployed.png) |
 
 ## The Problem
 
